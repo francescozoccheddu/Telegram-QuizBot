@@ -1,0 +1,2 @@
+sparqlwrapper
+python-telegram-bot

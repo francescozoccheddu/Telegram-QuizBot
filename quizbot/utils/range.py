@@ -33,7 +33,7 @@ class Range:
                 return Range(arg[0], arg[1])
         elif len(args) == 2:
             return Range(args[0], args[1])
-        raise TypeError("Expected range")
+        raise TypeError('Expected range')
 
     def __init__(self, min, max):
         if not isinstance(min, (int, float)) or not isinstance(max, (int, float)):
@@ -75,4 +75,4 @@ class Range:
         return clamp(self.tuple, x)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}{(self._min,self._max)}"
+        return f'{self.__class__.__name__}{(self._min,self._max)}'

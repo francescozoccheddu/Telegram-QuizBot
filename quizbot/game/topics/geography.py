@@ -1,24 +1,107 @@
-from ..quizzes import Topic, question
-from ...utils import range
+from ..quiz import Topic, question, answerCount
+from ...utils import range, sparql, easing
+import random
 
-topic = Topic("geography")
+topic = Topic('geography')
 
-
-@question(topic, (0, 1))
-def question1(difficulty):
-    print(f"Question 1 with difficulty={difficulty}")
-
-
-@question(topic, (0, 0.5))
-def question2(difficulty):
-    print(f"Question 2 with difficulty={difficulty}")
+_querier = sparql.Querier(sparql.dbpediaEndpointURL, [sparql.rdfsPrefix, *sparql.dbpediaPrefixes])
+_filterCountries = f'?country a dbo:Country. FILTER NOT EXISTS {{?country dbo:dissolutionYear ?dissolutionYear}}.'
 
 
-@question(topic, (0.5, 1))
-def question3(difficulty):
-    print(f"Question 3 with difficulty={difficulty}")
+def query(query):
+    return _querier.query(query)
 
 
-@question(topic, (0, 1))
-def question4(difficulty):
-    print(f"Question 4 with difficulty={difficulty}")
+def _filterCountriesByDifficulty(difficulty):
+    if difficulty is None:
+        return ''
+    hdiMinRange = range.Range(0, 30)
+    hdiMaxRange = range.Range(30, 190)
+    hdiMinRank = hdiMinRange.lerp(difficulty)
+    hdiMaxRank = hdiMaxRange.lerp(difficulty)
+    return f'''
+    ?country dbp:hdiRank ?hdiRank.
+    FILTER(?hdiRank >= {hdiMinRank}).
+    FILTER(?hdiRank <= {hdiMaxRank}).
+    '''
+
+
+@question(topic)
+def whichCapitalByCountry(difficulty):
+    rows = query(f'''
+    SELECT ?countryName ?capitalName
+    WHERE {{
+        {_filterCountries}
+        ?country dbo:capital ?capital.
+        {sparql.label('country', 'countryName')}
+        {sparql.label('capital', 'capitalName')}
+        {_filterCountriesByDifficulty(difficulty)}
+    }} GROUP BY ?capital
+    {sparql.randomSample(answerCount)}
+    ''')
+    return f'What is the capital of {rows[0].countryName}?', [row.capitalName for row in rows]
+
+
+@question(topic)
+def whichCountryByCapital(difficulty):
+    pass
+
+
+@question(topic)
+def whichLanguageByCountry(difficulty):
+    pass
+
+
+@question(topic)
+def whichCurrencyByCountry(difficulty):
+    pass
+
+
+@question(topic)
+def whichContinentByCountry(difficulty):
+    pass
+
+
+@question(topic)
+def whichCountryNotInContinent(difficulty):
+    pass
+
+
+@question(topic)
+def whatPopulationByCountry(difficulty):
+    pass
+
+
+@question(topic)
+def whichCountryByPopulation(difficulty):
+    pass
+
+
+@question(topic)
+def whichCountryWithGreatestPopulation(difficulty):
+    pass
+
+
+@question(topic)
+def whichCountryWithSmallestPopulation(difficulty):
+    pass
+
+
+@question(topic)
+def whichCountryWithLargestArea(difficulty):
+    pass
+
+
+@question(topic)
+def whichCountryWithSmallestArea(difficulty):
+    pass
+
+
+@question(topic)
+def whichCountryIsRicher(difficulty):
+    pass
+
+
+@question(topic)
+def whichCountryIsPoorer(difficulty):
+    pass
