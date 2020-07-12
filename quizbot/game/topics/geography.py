@@ -28,7 +28,7 @@ def _filterCountriesByDifficulty(difficulty):
 
 @question(topic)
 def whichCapitalByCountry(difficulty):
-    rows = query(f'''
+    res = query(f'''
     SELECT ?countryName ?capitalName
     WHERE {{
         {_filterCountries}
@@ -38,8 +38,8 @@ def whichCapitalByCountry(difficulty):
         {_filterCountriesByDifficulty(difficulty)}
     }} GROUP BY ?capital
     {sparql.randomSample(answerCount)}
-    ''')
-    return f'What is the capital of {rows[0].countryName}?', [row.capitalName for row in rows]
+    ''').table
+    return f'What is the capital of {res["countryName"][0]}?', tuple(res['capitalName'])
 
 
 @question(topic)
