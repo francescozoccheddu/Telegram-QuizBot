@@ -1,4 +1,4 @@
-from ..quiz import Topic, question, answerCount
+from ..quiz import Topic, question, dependency, answerCount
 from ...utils import range, sparql
 
 topic = Topic('geography')
@@ -6,11 +6,7 @@ topic = Topic('geography')
 _data = None
 
 
-def ensureInitialized():
-    if _data is None:
-        initialize()
-
-
+@dependency
 def initialize():
     from ...utils import resources
     config = resources.json('geography.json')
@@ -41,71 +37,71 @@ def _dataByDifficulty(difficulty):
     return _data[hdiMin <= _data.hdi <= hdiMax]
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCapitalByCountry(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCountryByCapital(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichLanguageByCountry(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCurrencyByCountry(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichContinentByCountry(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCountryNotInContinent(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whatPopulationByCountry(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCountryByPopulation(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCountryWithGreatestPopulation(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCountryWithSmallestPopulation(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCountryWithLargestArea(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCountryWithSmallestArea(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCountryIsRicher(difficulty):
     pass
 
 
-@question(topic)
+@question(topic, dependencies=[initialize])
 def whichCountryIsPoorer(difficulty):
     pass
