@@ -1,45 +1,49 @@
 from ..quiz import Topic, question, answerCount
-from ...utils import range, sparql, easing
-import random
+from ...utils import range, sparql
 
 topic = Topic('geography')
 
-_querier = sparql.Querier(sparql.dbpediaEndpointURL, [sparql.rdfsPrefix, *sparql.dbpediaPrefixes])
-_filterCountries = f'?country a dbo:Country. FILTER NOT EXISTS {{?country dbo:dissolutionYear ?dissolutionYear}}.'
+_data = None
 
 
-def query(query):
-    return _querier.query(query)
+def ensureInitialized():
+    if _data is None:
+        initialize()
 
 
-def _filterCountriesByDifficulty(difficulty):
+def initialize():
+    from ...utils import resources
+    config = resources.json('geography.json')
+    query = resources.text(config['queryFilename'])
+    listConverter = sparql.makeListConverter(config['listSeparator'])
+    converters = {
+        'borders': listConverter,
+        'continents': listConverter,
+        'currencies': listConverter,
+        'languages': listConverter,
+        'area': float,
+        'population': int,
+        'populationDensity': float,
+        'gdp': float,
+        'hdi': float,
+    }
+    global _data
+    _data = sparql.query(config['endpointUrl'], query, converters=converters)
+
+
+def _dataByDifficulty(difficulty):
     if difficulty is None:
-        return ''
-    hdiMinRange = range.Range(0, 30)
-    hdiMaxRange = range.Range(30, 190)
-    hdiMinRank = hdiMinRange.lerp(difficulty)
-    hdiMaxRank = hdiMaxRange.lerp(difficulty)
-    return f'''
-    ?country dbp:hdiRank ?hdiRank.
-    FILTER(?hdiRank >= {hdiMinRank}).
-    FILTER(?hdiRank <= {hdiMaxRank}).
-    '''
+        return _data
+    hdiMinRange = range.Range(0.7, 0.9)
+    hdiMaxRange = range.Range(0, 0.7)
+    hdiMin = hdiMinRange.lerp(1 - difficulty)
+    hdiMax = hdiMaxRange.lerp(1 - difficulty)
+    return _data[hdiMin <= _data.hdi <= hdiMax]
 
 
 @question(topic)
 def whichCapitalByCountry(difficulty):
-    res = query(f'''
-    SELECT ?countryName ?capitalName
-    WHERE {{
-        {_filterCountries}
-        ?country dbo:capital ?capital.
-        {sparql.label('country', 'countryName')}
-        {sparql.label('capital', 'capitalName')}
-        {_filterCountriesByDifficulty(difficulty)}
-    }} GROUP BY ?capital
-    {sparql.randomSample(answerCount)}
-    ''').table
-    return f'What is the capital of {res["countryName"][0]}?', tuple(res['capitalName'])
+    pass
 
 
 @question(topic)

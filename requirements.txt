@@ -1,3 +1,4 @@
 sparqlwrapper
 python-telegram-bot
-tabulate
+pandas
+humanize
