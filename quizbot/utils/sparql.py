@@ -1,8 +1,4 @@
 
-
-# Querying
-
-
 class Querier:
 
     def __init__(self, url, prefixes=[]):
@@ -22,10 +18,6 @@ class Querier:
     @property
     def prefixes(self):
         return self._prefixes
-
-    @staticmethod
-    def _defaultConverter(value):
-        return value
 
     def _buildResult(self, query, result, converters={}):
         import pandas
@@ -57,32 +49,15 @@ class QuerierError(Exception):
     pass
 
 
-# Language helpers
-
-
-def filterLanguage(variable, language='EN'):
-    return f'FILTER langMatches(lang(?{variable}), "EN").'
-
-
-def label(variable, outputVariable, rdfsPrefix='rdfs', language='EN'):
-    return f'?{variable} {rdfsPrefix}:label ?{outputVariable}. {filterLanguage(outputVariable, language)}'
-
-
-def randomSample(count, randomPoolSize=2 ** 16):
-    import random
-    return f'ORDER BY RAND({random.randint(0, randomPoolSize)}) LIMIT {count}'
-
-
-def prefix(*nameUrlPairs):
-    return '\n'.join(map(lambda p: f'PREFIX {p[0]}: <{p[1]}>', nameUrlPairs))
-
-
-# Utility converters
-
 def identityConverter(value):
     return value
+
 
 def makeListConverter(delimiter=';', converter=identityConverter):
     def listConverter(value):
         return [converter(i) for i in value.split(delimiter)]
     return listConverter
+
+
+def boolConverter(value):
+    return value.strip().lower() == 'true'

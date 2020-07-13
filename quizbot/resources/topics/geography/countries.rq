@@ -1,10 +1,10 @@
 SELECT 
     (?countryLabel AS ?country) (?capitalLabel AS ?capital) 
-    ?population ?area ?gdp ?hdi ?populationDensity
+    ?population ?area ?gdp ?populationDensity
     ?borders ?languages ?continents ?currencies ?cities
 {
     SELECT 
-        ?countryLabel ?capitalLabel ?population ?area ?gdp ?hdi 
+        ?countryLabel ?capitalLabel ?population ?area ?gdp 
         (?population/?area AS ?populationDensity) 
         ?borders ?languages ?continents ?currencies ?cities
     WHERE 
@@ -13,7 +13,7 @@ SELECT
             SELECT 
                 ?country 
                 (SAMPLE(?capital) as ?capital) (SAMPLE(?population) as ?population) 
-                (SAMPLE(?area) as ?area) (SAMPLE(?gdp) as ?gdp) (SAMPLE(?hdi) as ?hdi)
+                (SAMPLE(?area) as ?area) (SAMPLE(?gdp) as ?gdp) 
             WHERE
             {
                 ?country wdt:P31 wd:Q3624078.
@@ -21,7 +21,6 @@ SELECT
                 ?country wdt:P1082 ?population.
                 ?country wdt:P2046 ?area.
                 ?country wdt:P2132 ?gdp.
-                ?country wdt:P1081 ?hdi.
             }
             GROUP BY ?country
         }.

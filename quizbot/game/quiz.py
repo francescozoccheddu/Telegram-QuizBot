@@ -1,10 +1,13 @@
 
 import random
-from ..utils import range
+from ..utils import resources
+
 
 topics = set()
 
-answerCount = 4
+_config = resources.json('config.json')
+_probabilityPerDifficultyRange = _config['probabilityPerDifficultyRange']
+answersCount = _config['answersCount']
 
 
 def randomTopic():
@@ -35,7 +38,7 @@ class Topic:
 
     @property
     def allDependencies(self):
-        return tuple(self._dependencies)
+        return self._dependencies
 
     @property
     def areAllReady(self):
@@ -46,16 +49,21 @@ class Topic:
             d()
 
     def randomQuestionFactory(self, difficulty, includeNotReady=False):
-        questions = [q for q in self._questions if q.difficultyRange.contains(difficulty) and (includeNotReady or q.isReady)]
+        if 0 > difficulty > 1:
+            raise ValueError('Difficulty must fall in range [0,1]')
+        questions = [q for q in self._questions if (includeNotReady or q.isReady)]
+        def _weight(question):
+            diff = 1 - abs(difficulty - question.difficulty)
+            a, b = _probabilityPerDifficultyRange
+            return a + diff * (b - a)
         if len(questions) == 0:
             return None
-        return random.choice(questions)
+        return random.choices(questions, weights=list(map(_weight, questions)))[0]
 
-    def randomQuestion(self, difficulty, ready=False):
-        question = self.randomQuestionFactory(difficulty, ready)
-        question()
-        relativeDifficulty = question.difficultyRange.getProgress(difficulty)
-        return question(relativeDifficulty)
+    def randomQuestion(self, difficulty, readyIfNotYet=False):
+        question = self.randomQuestionFactory(difficulty, readyIfNotYet)
+        question.ready()
+        return question()
 
     def __repr__(self):
         return f'{self.__class__.__qualname__}({repr(self._name)})'
@@ -66,28 +74,30 @@ class Topic:
 
 class QuestionFactory:
 
-    def __init__(self, producer, topic, difficultyRange=(0, 1), dependencies=[]):
+    def __init__(self, producer, topic, difficulty=0.5, dependencies=[]):
         if not isinstance(topic, Topic):
             raise TypeError('Unexpected topic type')
         if not callable(producer):
             raise TypeError('Unexpected producer type')
         if not isinstance(dependencies, (list, tuple, set)) or any(not isinstance(d, QuestionDependency) for d in dependencies):
             raise TypeError('Unexpected dependencies type')
+        if not isinstance(difficulty, (float, int)):
+            raise TypeError('Unexpected difficulty type')
+        if 0 > difficulty > 1:
+            raise ValueError('Difficulty must fall in range [0,1]')
         self._topic = topic
-        self._difficultyRange = range.Range.ensure(difficultyRange)
+        self._difficulty = difficulty
         self._producer = producer
-        self._dependencies = tuple(dependencies)
+        self._dependencies = dependencies
         topic._registerQuestion(self)
 
-    def __call__(self, difficulty):
-        if not isinstance(difficulty, (int, float)):
-            raise TypeError('Unexpected difficulty type')
+    def __call__(self):
         if not self.isReady:
             raise RuntimeError('Not all dependencies are ready')
-        return self._producer(range.clamp((0, 1), difficulty))
+        return self._producer()
 
     def __repr__(self):
-        return f'{self.__class__.__qualname__}{(self._producer, self._topic, self._difficultyRange, self._dependencies)}'
+        return f'{self.__class__.__qualname__}{(self._producer, self._topic, self._difficulty, self._dependencies)}'
 
     def __str__(self):
         return self.producerName
@@ -113,13 +123,17 @@ class QuestionFactory:
         return self._topic
 
     @property
-    def difficultyRange(self):
-        return self._difficultyRange
+    def difficulty(self):
+        return self._difficulty
 
 
 class QuestionDependency:
 
     def __init__(self, producer, cache=False):
+        if not isinstance(cache, bool):
+            raise TypeError('Unexpected cache type')
+        if not callable(producer):
+            raise TypeError('Unexpected producer type')
         self._ready = False
         self._producer = producer
         self._data = None
@@ -167,9 +181,9 @@ class DependencyError(Exception):
     pass
 
 
-def question(topic, difficultyRange=(0, 1), dependencies=[]):
+def question(topic, difficulty=0.5, dependencies=[]):
     def wrapper(producer):
-        return QuestionFactory(producer, topic, difficultyRange, dependencies)
+        return QuestionFactory(producer, topic, difficulty, dependencies)
     return wrapper
 
 

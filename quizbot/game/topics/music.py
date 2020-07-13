@@ -1,5 +1,5 @@
-from ..quiz import Topic, question, answerCount
-from ...utils import range, sparql, easing
+from ..quiz import Topic, question, answersCount
+from ...utils import  sparql, easing
 import random
 
 topic = Topic('music')
