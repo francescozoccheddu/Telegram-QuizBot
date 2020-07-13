@@ -1,0 +1,11 @@
+SELECT (?languageLabel AS ?language)
+{
+    SELECT DISTINCT ?languageLabel
+    WHERE 
+    {
+        ?language wdt:P31 wd:Q1288568.
+        ?country wdt:P31 wd:Q3624078.
+        ?country wdt:P37 ?language.
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    }
+}

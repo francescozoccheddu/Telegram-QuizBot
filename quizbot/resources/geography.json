@@ -1,5 +1,0 @@
-{
-    "endpointUrl": "https://query.wikidata.org/sparql",
-    "queryFilename": "countries.rq",
-    "listSeparator": ";"
-}

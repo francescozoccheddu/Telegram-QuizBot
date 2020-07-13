@@ -1,0 +1,9 @@
+SELECT (?continentLabel AS ?continent)
+{
+    SELECT ?continentLabel
+    WHERE 
+    {
+        ?continent wdt:P31 wd:Q5107.
+        SERVICE wikibase:label {bd:serviceParam wikibase:language "en".}
+    }
+}

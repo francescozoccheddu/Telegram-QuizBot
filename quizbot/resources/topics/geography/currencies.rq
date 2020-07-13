@@ -1,0 +1,11 @@
+SELECT (?currencyLabel AS ?currency)
+{
+    SELECT DISTINCT ?currencyLabel
+    WHERE 
+    {
+        ?currency wdt:P31 wd:Q8142.
+        ?country wdt:P31 wd:Q3624078.
+        ?country wdt:P38 ?currency.
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    }
+}

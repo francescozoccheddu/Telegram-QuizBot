@@ -1,25 +1,24 @@
 from ..quiz import Topic, question, dependency, cachedDependency, answerCount
-from ...utils import range, sparql
+from ...utils import range, sparql, resources
 
 topic = Topic('geography')
 
 
 @dependency
 def config():
-    from ...utils import resources
-    return resources.json('geography.json')
+    return resources.json('topics/geography/config.json')
 
 
 @cachedDependency
 def countries():
-    from ...utils import resources
     cfg = config()
-    query = resources.text(cfg['queryFilename'])
+    query = resources.text(cfg['queryFiles']['countries'])
     listConverter = sparql.makeListConverter(cfg['listSeparator'])
     converters = {
-        'borders': listConverter,
         'continents': listConverter,
         'currencies': listConverter,
+        'borders': listConverter,
+        'cities': listConverter,
         'languages': listConverter,
         'area': float,
         'population': int,
@@ -30,17 +29,28 @@ def countries():
     return sparql.query(cfg['endpointUrl'], query, converters=converters)
 
 
-@dependency
+@cachedDependency
 def continents():
-    pass
+    cfg = config()
+    query = resources.text(cfg['queryFiles']['continents'])
+    return sparql.query(cfg['endpointUrl'], query)
 
 
-@dependency
+@cachedDependency
 def languages():
-    pass
+    cfg = config()
+    query = resources.text(cfg['queryFiles']['languages'])
+    return sparql.query(cfg['endpointUrl'], query)
 
 
-def _dataByDifficulty(difficulty):
+@cachedDependency
+def currencies():
+    cfg = config()
+    query = resources.text(cfg['queryFiles']['currencies'])
+    return sparql.query(cfg['endpointUrl'], query)
+
+
+def _countriesByDifficulty(difficulty):
     d = countries.data
     if difficulty is None:
         return d
@@ -51,9 +61,21 @@ def _dataByDifficulty(difficulty):
     return d[(hdiMin <= d.hdi) & (d.hdi <= hdiMax)]
 
 
+def _countryWithSingleAttribute(difficulty, key):
+    c = _countriesByDifficulty(difficulty)
+    c = c[c[key].apply(lambda l: len(l) == 1)].sample(1)
+    return c.country.iloc[0], c[key].iloc[0][0]
+
+
+def _answersByList(data, rightAnswer):
+    d = data.sample(answerCount)
+    d = d[d.iloc[:, 0] != rightAnswer].sample(answerCount - 1).iloc[:, 0]
+    return [rightAnswer] + list(d)
+
+
 @question(topic, dependencies=[countries])
 def whichCapitalByCountry(difficulty):
-    res = _dataByDifficulty(difficulty).sample(answerCount)
+    res = _countriesByDifficulty(difficulty).sample(answerCount)
     country = res.country.iloc[0]
     answers = list(res.capital)
     return f'What is the capital of {country}?', answers
@@ -61,25 +83,31 @@ def whichCapitalByCountry(difficulty):
 
 @question(topic, dependencies=[countries])
 def whichCountryByCapital(difficulty):
-    res = _dataByDifficulty(difficulty).sample(answerCount)
+    res = _countriesByDifficulty(difficulty).sample(answerCount)
     capital = res.capital.iloc[0]
     answers = list(res.country)
     return f'What country is {capital} the capital of?', answers
 
 
-@question(topic, dependencies=[countries])
+@question(topic, dependencies=[countries, languages])
 def whichLanguageByCountry(difficulty):
-    pass
+    country, language = _countryWithSingleAttribute(difficulty, 'languages')
+    answers = _answersByList(languages.data, language)
+    return f'What is the official language of {country}?', answers
 
 
-@question(topic, dependencies=[countries])
+@question(topic, dependencies=[countries, currencies])
 def whichCurrencyByCountry(difficulty):
-    pass
+    country, currency = _countryWithSingleAttribute(difficulty, 'currencies')
+    answers = _answersByList(currencies.data, currency)
+    return f'What is the official currency of {country}?', answers
 
 
-@question(topic, dependencies=[countries])
+@question(topic, dependencies=[countries, continents])
 def whichContinentByCountry(difficulty):
-    pass
+    country, continent = _countryWithSingleAttribute(difficulty, 'continents')
+    answers = _answersByList(continents.data, continent)
+    return f'What is the continent of {country}?', answers
 
 
 @question(topic, dependencies=[countries])

@@ -1,0 +1,103 @@
+SELECT 
+    (?countryLabel AS ?country) (?capitalLabel AS ?capital) 
+    ?population ?area ?gdp ?hdi ?populationDensity
+    ?borders ?languages ?continents ?currencies ?cities
+{
+    SELECT 
+        ?countryLabel ?capitalLabel ?population ?area ?gdp ?hdi 
+        (?population/?area AS ?populationDensity) 
+        ?borders ?languages ?continents ?currencies ?cities
+    WHERE 
+    {
+        {
+            SELECT 
+                ?country 
+                (SAMPLE(?capital) as ?capital) (SAMPLE(?population) as ?population) 
+                (SAMPLE(?area) as ?area) (SAMPLE(?gdp) as ?gdp) (SAMPLE(?hdi) as ?hdi)
+            WHERE
+            {
+                ?country wdt:P31 wd:Q3624078.
+                ?country wdt:P36 ?capital.
+                ?country wdt:P1082 ?population.
+                ?country wdt:P2046 ?area.
+                ?country wdt:P2132 ?gdp.
+                ?country wdt:P1081 ?hdi.
+            }
+            GROUP BY ?country
+        }.
+        {
+            SELECT ?country (GROUP_CONCAT(?borderLabel;separator=";") AS ?borders)
+            WHERE 
+            {
+                ?country wdt:P31 wd:Q3624078.
+                ?country wdt:P47 ?border.
+                SERVICE wikibase:label 
+                {
+                    bd:serviceParam wikibase:language "en".
+                    ?border rdfs:label ?borderLabel
+                }
+            } 
+            GROUP BY ?country
+        }.
+        {
+            SELECT ?country (GROUP_CONCAT(?languageLabel;separator=";") AS ?languages)
+            WHERE 
+            {
+                ?country wdt:P31 wd:Q3624078.
+                ?country wdt:P37 ?language.
+                SERVICE wikibase:label 
+                {
+                    bd:serviceParam wikibase:language "en".
+                    ?language rdfs:label ?languageLabel
+                }
+            } 
+            GROUP BY ?country
+        }.
+        {
+            SELECT ?country (GROUP_CONCAT(?continentLabel;separator=";") AS ?continents)
+            WHERE 
+            {
+                ?country wdt:P31 wd:Q3624078.
+                ?country wdt:P30 ?continent.
+                SERVICE wikibase:label 
+                {
+                    bd:serviceParam wikibase:language "en".
+                    ?continent rdfs:label ?continentLabel
+                }
+            } 
+            GROUP BY ?country
+        }.
+        {
+            SELECT ?country (GROUP_CONCAT(?currencyLabel;separator=";") AS ?currencies)
+            WHERE 
+            {
+                ?country wdt:P31 wd:Q3624078.
+                ?country wdt:P38 ?currency.
+                SERVICE wikibase:label 
+                {
+                    bd:serviceParam wikibase:language "en".
+                    ?currency rdfs:label ?currencyLabel
+                }
+            } 
+            GROUP BY ?country
+        }.
+        {
+            SELECT ?country (GROUP_CONCAT(?cityLabel;separator=";") AS ?cities)
+            WHERE 
+            {
+                ?city wdt:P31 wd:Q5119.
+                ?city wdt:P17 ?country.
+                SERVICE wikibase:label 
+                {
+                    bd:serviceParam wikibase:language "en".
+                    ?city rdfs:label ?cityLabel
+                }
+            } 
+            GROUP BY ?country
+        }.
+        SERVICE wikibase:label 
+        {
+            bd:serviceParam wikibase:language "en".
+        }
+    }
+}
