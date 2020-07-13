@@ -1,0 +1,7 @@
+{
+    "albums": {
+        "endpointUrl": "https://query.wikidata.org/sparql",
+        "queryFile": "topics/music/albums.rq",
+        "listSeparator": ";"
+    }
+}

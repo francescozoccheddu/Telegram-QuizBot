@@ -1,0 +1,12 @@
+{
+    "directors": {
+        "endpointUrl": "https://query.wikidata.org/sparql",
+        "queryFile": "topics/cinema/directors.rq",
+        "listSeparator": ";"
+    },
+    "movies": {
+        "endpointUrl": "https://query.wikidata.org/sparql",
+        "queryFile": "topics/cinema/movies.rq",
+        "listSeparator": ";"
+    }
+}

@@ -1,0 +1,32 @@
+SELECT (?directorLabel AS ?director) ?movies
+{
+    SELECT ?directorLabel ?movies
+    {
+        {
+            SELECT DISTINCT ?director
+            WHERE {
+                VALUES ?verb { wdt:P1411 wdt:P166 }
+                VALUES ?award { wd:Q103360 wd:Q777921 }
+                ?director wdt:P106 wd:Q2526255.
+                ?director ?verb ?award.
+            }
+        }.
+        {
+            SELECT ?director (GROUP_CONCAT(DISTINCT ?movieLabel;separator=";") AS ?movies)
+            WHERE {
+                VALUES ?verb { wdt:P1411 wdt:P166 }
+                VALUES ?award { wd:Q103360 wd:Q777921 }
+                ?movie wdt:P31 wd:Q11424.
+                ?movie ?verb ?award.
+                ?movie wdt:P57 ?director.
+                SERVICE wikibase:label 
+                { 
+                    bd:serviceParam wikibase:language "en". 
+                    ?movie rdfs:label ?movieLabel
+                }
+            }
+            GROUP BY ?director
+        }.
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    }
+}

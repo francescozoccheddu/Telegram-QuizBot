@@ -1,0 +1,23 @@
+SELECT (?movieLabel AS ?movie) ?director ?year ?actors
+{
+    SELECT ?movieLabel (SAMPLE(?directorLabel) AS ?director) (YEAR(MIN(?date)) AS ?year) (GROUP_CONCAT(DISTINCT ?actorLabel;separator=";") AS ?actors)
+    WHERE {
+        VALUES ?verb { wdt:P1411 wdt:P166 }
+        VALUES ?award { wd:Q103360 wd:Q777921 }
+        ?movie wdt:P31 wd:Q11424.
+        ?movie ?verb ?award.
+        ?movie wdt:P57 ?director.
+        ?movie wdt:P577 ?date.
+        ?movie wdt:P161 ?actor.
+        ?actor wdt:P106 wd:Q10800557.
+        ?actor wdt:P166/wdt:P31 wd:Q618779.
+        SERVICE wikibase:label 
+        { 
+            bd:serviceParam wikibase:language "en". 
+            ?movie rdfs:label ?movieLabel.
+            ?director rdfs:label ?directorLabel.
+            ?actor rdfs:label ?actorLabel.
+        }
+    }
+    GROUP BY ?movieLabel
+}

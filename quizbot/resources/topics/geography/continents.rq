@@ -1,9 +1,13 @@
-SELECT (?continentLabel AS ?continent)
+SELECT (?continentLabel AS ?continent) ?hasCountries
 {
-    SELECT ?continentLabel
+    SELECT ?continentLabel ?hasCountries
     WHERE 
     {
         ?continent wdt:P31 wd:Q5107.
+        BIND(EXISTS { 
+            ?country wdt:P30 ?continent. 
+            ?country wdt:P31 wd:Q3624078.
+        } AS ?hasCountries).
         SERVICE wikibase:label {bd:serviceParam wikibase:language "en".}
     }
 }

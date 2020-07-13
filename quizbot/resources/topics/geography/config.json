@@ -1,10 +1,19 @@
 {
-    "endpointUrl": "https://query.wikidata.org/sparql",
-    "listSeparator": ";",
-    "queryFiles": {
-        "countries": "topics/geography/countries.rq",
-        "languages": "topics/geography/languages.rq",
-        "currencies": "topics/geography/currencies.rq",
-        "continents": "topics/geography/continents.rq"
+    "continents": {
+        "endpointUrl": "https://query.wikidata.org/sparql",
+        "queryFile": "topics/geography/continents.rq"
+    },
+    "countries": {
+        "endpointUrl": "https://query.wikidata.org/sparql",
+        "queryFile": "topics/geography/countries.rq",
+        "listSeparator": ";"
+    },
+    "currencies": {
+        "endpointUrl": "https://query.wikidata.org/sparql",
+        "queryFile": "topics/geography/currencies.rq"
+    },
+    "languages": {
+        "endpointUrl": "https://query.wikidata.org/sparql",
+        "queryFile": "topics/geography/languages.rq"
     }
 }

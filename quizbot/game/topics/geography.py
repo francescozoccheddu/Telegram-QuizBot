@@ -1,5 +1,6 @@
 from ..quiz import Topic, question, dependency, cachedDependency, answerCount
 from ...utils import range, sparql, resources
+import random
 
 topic = Topic('geography')
 
@@ -11,8 +12,8 @@ def config():
 
 @cachedDependency
 def countries():
-    cfg = config()
-    query = resources.text(cfg['queryFiles']['countries'])
+    cfg = config()['countries']
+    query = resources.text(cfg['queryFile'])
     listConverter = sparql.makeListConverter(cfg['listSeparator'])
     converters = {
         'continents': listConverter,
@@ -31,22 +32,25 @@ def countries():
 
 @cachedDependency
 def continents():
-    cfg = config()
-    query = resources.text(cfg['queryFiles']['continents'])
-    return sparql.query(cfg['endpointUrl'], query)
+    cfg = config()['continents']
+    query = resources.text(cfg['queryFile'])
+    converters = {
+        'hasCountries': lambda v: v.strip().lower() == 'true'
+    }
+    return sparql.query(cfg['endpointUrl'], query, converters=converters)
 
 
 @cachedDependency
 def languages():
-    cfg = config()
-    query = resources.text(cfg['queryFiles']['languages'])
+    cfg = config()['languages']
+    query = resources.text(cfg['queryFile'])
     return sparql.query(cfg['endpointUrl'], query)
 
 
 @cachedDependency
 def currencies():
-    cfg = config()
-    query = resources.text(cfg['queryFiles']['currencies'])
+    cfg = config()['currencies']
+    query = resources.text(cfg['queryFile'])
     return sparql.query(cfg['endpointUrl'], query)
 
 
@@ -75,10 +79,7 @@ def _answersByList(data, rightAnswer):
 
 @question(topic, dependencies=[countries])
 def whichCapitalByCountry(difficulty):
-    res = _countriesByDifficulty(difficulty).sample(answerCount)
-    country = res.country.iloc[0]
-    answers = list(res.capital)
-    return f'What is the capital of {country}?', answers
+    pass
 
 
 @question(topic, dependencies=[countries])
@@ -110,8 +111,30 @@ def whichContinentByCountry(difficulty):
     return f'What is the continent of {country}?', answers
 
 
-@question(topic, dependencies=[countries])
+@question(topic, dependencies=[countries, continents])
+def whichCountryInContinent(difficulty):
+    d = countries.data
+    c = continents.data
+    continent = c[c.hasCountries].sample(1).iloc[0][0]
+    right = d[d.continents.apply(lambda cs: [continent] == cs)].sample(1)
+    wrong = d[d.continents.apply(lambda cs: continent not in cs)].sample(answerCount - 1)
+    answers = list(right.append(wrong).country)
+    return f'Which country is in {continent}?', answers
+
+
+@question(topic, dependencies=[countries, continents])
 def whichCountryNotInContinent(difficulty):
+    d = countries.data
+    c = continents.data
+    continent = c[c.hasCountries].sample(1).iloc[0][0]
+    right = d[d.continents.apply(lambda cs: continent not in cs)].sample(1)
+    wrong = d[d.continents.apply(lambda cs: [continent] == cs)].sample(answerCount - 1)
+    answers = list(right.append(wrong).country)
+    return f'Which country is not in {continent}?', answers
+
+
+@question(topic, dependencies=[countries])
+def whichCountryByCity(difficulty):
     pass
 
 
@@ -152,4 +175,14 @@ def whichCountryIsRicher(difficulty):
 
 @question(topic, dependencies=[countries])
 def whichCountryIsPoorer(difficulty):
+    pass
+
+
+@question(topic, dependencies=[countries])
+def whoSharesBorderWithCountry(difficulty):
+    pass
+
+
+@question(topic, dependencies=[countries])
+def whoDoesntShareBorderWithCountry(difficulty):
     pass
