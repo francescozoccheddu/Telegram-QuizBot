@@ -43,7 +43,7 @@ class Topic:
 
     def readyAll(self):
         for d in self._dependencies:
-            d.ready()
+            d()
 
     def randomQuestionFactory(self, difficulty, includeNotReady=False):
         questions = [q for q in self._questions if q.difficultyRange.contains(difficulty) and (includeNotReady or q.isReady)]
@@ -53,7 +53,7 @@ class Topic:
 
     def randomQuestion(self, difficulty, ready=False):
         question = self.randomQuestionFactory(difficulty, ready)
-        question.ready()
+        question()
         relativeDifficulty = question.difficultyRange.getProgress(difficulty)
         return question(relativeDifficulty)
 
@@ -83,7 +83,7 @@ class QuestionFactory:
         if not isinstance(difficulty, (int, float)):
             raise TypeError('Unexpected difficulty type')
         if not self.isReady:
-            raise RuntimeError('Not all dependencies are statisfied')
+            raise RuntimeError('Not all dependencies are ready')
         return self._producer(range.clamp((0, 1), difficulty))
 
     def __repr__(self):
@@ -106,7 +106,7 @@ class QuestionFactory:
 
     def ready(self):
         for d in self._dependencies:
-            d.ready()
+            d()
 
     @property
     def topic(self):
@@ -119,22 +119,45 @@ class QuestionFactory:
 
 class QuestionDependency:
 
-    def __init__(self, func):
+    def __init__(self, producer, dependencies=[]):
+        if not isinstance(dependencies, (list, tuple, set)) or any(not isinstance(d, QuestionDependency) for d in dependencies):
+            raise TypeError('Unexpected dependencies type')
         self._ready = False
-        self._func = func
+        self._func = producer
+        self._data = None
+        self._dependencies = set(dependencies)
+        self._recursionCheck()
+
+    def _recursionCheck(self):
+        pending = set(self._dependencies)
+        done = set()
+        while len(pending) > 0:
+            p = pending.pop()
+            if p is self:
+                raise ValueError('Recursive dependencies')
+            done.add(p)
+            pending.update(p._dependencies - done)
+
+    @property
+    def dependencies(self):
+        return tuple(self._dependencies)
 
     def __call__(self):
-        self._ready = False
-        try:
-            self._func()
-        except:
-            raise DependencyError()
-        else:
-            self._ready = True
-
-    def ready(self):
         if not self._ready:
-            self()
+            try:
+                for d in self._dependencies:
+                    d()
+                self._data = self._func()
+            except:
+                raise DependencyError()
+            else:
+                self._ready = True
+
+    @property
+    def data(self):
+        if not self._ready:
+            raise RuntimeError('Not ready')
+        return self._data
 
     @property
     def functionName(self):
@@ -161,5 +184,7 @@ def question(topic, difficultyRange=(0, 1), dependencies=[]):
     return wrapper
 
 
-def dependency(func):
-    return QuestionDependency(func)
+def dependency(dependencies=[]):
+    def wrapper(func):
+        return QuestionDependency(func, dependencies)
+    return wrapper

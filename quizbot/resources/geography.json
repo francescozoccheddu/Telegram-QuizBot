@@ -1,5 +1,5 @@
 {
     "endpointUrl": "https://query.wikidata.org/sparql",
-    "queryFilename": "geography.rq",
+    "queryFilename": "countries.rq",
     "listSeparator": ";"
 }
