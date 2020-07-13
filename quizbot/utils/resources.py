@@ -45,9 +45,13 @@ def _load(path, filename):
 
 def _store(path, filename, data):
     import pickle
-    with _file(_cachePath, filename, False, True) as file:
-        pickle.dump(data, file)
-
+    try:
+        with _file(_cachePath, filename, False, True) as file:
+            pickle.dump(data, file)
+    except:
+        return False
+    else:
+        return True
 
 def loadCache(filename):
     return _load(_cachePath, filename)

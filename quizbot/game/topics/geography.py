@@ -1,47 +1,41 @@
-from ..quiz import Topic, question, dependency, answerCount
+from ..quiz import Topic, question, dependency, cachedDependency, answerCount
 from ...utils import range, sparql
 
 topic = Topic('geography')
 
 
-@dependency()
+@dependency
 def config():
     from ...utils import resources
     return resources.json('geography.json')
 
 
-@dependency([config])
+@cachedDependency
 def countries():
     from ...utils import resources
-    cached, cache = resources.loadCache('topics/geography/countries')
-    if cached:
-        return cache
-    else:
-        cfg = config.data
-        query = resources.text(cfg['queryFilename'])
-        listConverter = sparql.makeListConverter(cfg['listSeparator'])
-        converters = {
-            'borders': listConverter,
-            'continents': listConverter,
-            'currencies': listConverter,
-            'languages': listConverter,
-            'area': float,
-            'population': int,
-            'populationDensity': float,
-            'gdp': float,
-            'hdi': float,
-        }
-        data = sparql.query(cfg['endpointUrl'], query, converters=converters)
-        resources.storeCache('topics/geography/countries', data)
-        return data
+    cfg = config()
+    query = resources.text(cfg['queryFilename'])
+    listConverter = sparql.makeListConverter(cfg['listSeparator'])
+    converters = {
+        'borders': listConverter,
+        'continents': listConverter,
+        'currencies': listConverter,
+        'languages': listConverter,
+        'area': float,
+        'population': int,
+        'populationDensity': float,
+        'gdp': float,
+        'hdi': float,
+    }
+    return sparql.query(cfg['endpointUrl'], query, converters=converters)
 
 
-@dependency([config])
+@dependency
 def continents():
     pass
 
 
-@dependency([config])
+@dependency
 def languages():
     pass
 

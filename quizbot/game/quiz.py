@@ -58,7 +58,7 @@ class Topic:
         return question(relativeDifficulty)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({repr(self._name)})'
+        return f'{self.__class__.__qualname__}({repr(self._name)})'
 
     def __str__(self):
         return self._name
@@ -87,14 +87,14 @@ class QuestionFactory:
         return self._producer(range.clamp((0, 1), difficulty))
 
     def __repr__(self):
-        return f'{self.__class__.__name__}{(self._producer, self._topic, self._difficultyRange, self._dependencies)}'
+        return f'{self.__class__.__qualname__}{(self._producer, self._topic, self._difficultyRange, self._dependencies)}'
 
     def __str__(self):
         return self.producerName
 
     @property
     def producerName(self):
-        return self._producer.__name__
+        return f'{self._producer.__module__}.{self._producer.__qualname__}'
 
     @property
     def dependencies(self):
@@ -119,39 +119,28 @@ class QuestionFactory:
 
 class QuestionDependency:
 
-    def __init__(self, producer, dependencies=[]):
-        if not isinstance(dependencies, (list, tuple, set)) or any(not isinstance(d, QuestionDependency) for d in dependencies):
-            raise TypeError('Unexpected dependencies type')
+    def __init__(self, producer, cache=False):
         self._ready = False
-        self._func = producer
+        self._producer = producer
         self._data = None
-        self._dependencies = set(dependencies)
-        self._recursionCheck()
-
-    def _recursionCheck(self):
-        pending = set(self._dependencies)
-        done = set()
-        while len(pending) > 0:
-            p = pending.pop()
-            if p is self:
-                raise ValueError('Recursive dependencies')
-            done.add(p)
-            pending.update(p._dependencies - done)
-
-    @property
-    def dependencies(self):
-        return tuple(self._dependencies)
+        self._cache = cache
 
     def __call__(self):
         if not self._ready:
-            try:
-                for d in self._dependencies:
-                    d()
-                self._data = self._func()
-            except:
-                raise DependencyError()
-            else:
-                self._ready = True
+            from ..utils import resources
+            if self._cache is not None:
+                cacheFile = f'.{self.__class__.__qualname__}_cache/{self.functionName}'
+                self._ready, self._data = resources.loadCache(cacheFile)
+            if not self._ready:
+                try:
+                    self._data = self._producer()
+                except:
+                    raise DependencyError()
+                else:
+                    if self._cache:
+                        resources.storeCache(cacheFile, self._data)
+                    self._ready = True
+        return self._data
 
     @property
     def data(self):
@@ -161,14 +150,14 @@ class QuestionDependency:
 
     @property
     def functionName(self):
-        return self._func.__name__
+        return f'{self._producer.__module__}.{self._producer.__qualname__}'
 
     @property
     def isReady(self):
         return self._ready
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self._func})'
+        return f'{self.__class__.__qualname__}({self._producer})'
 
     def __str__(self):
         return self.functionName
@@ -179,12 +168,14 @@ class DependencyError(Exception):
 
 
 def question(topic, difficultyRange=(0, 1), dependencies=[]):
-    def wrapper(func):
-        return QuestionFactory(func, topic, difficultyRange, dependencies)
+    def wrapper(producer):
+        return QuestionFactory(producer, topic, difficultyRange, dependencies)
     return wrapper
 
 
-def dependency(dependencies=[]):
-    def wrapper(func):
-        return QuestionDependency(func, dependencies)
-    return wrapper
+def dependency(producer):
+    return QuestionDependency(producer)
+
+
+def cachedDependency(producer):
+    return QuestionDependency(producer, True)
