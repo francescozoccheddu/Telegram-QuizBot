@@ -1,1 +1,24 @@
-# Album | Artist | Year | Track
+SELECT (?albumTitle AS ?album) ?artist ?songs ?year
+{
+    SELECT ?albumTitle (SAMPLE(?artistName) AS ?artist) (GROUP_CONCAT(DISTINCT ?songTitle;separator=";") AS ?songs) (YEAR(MIN(?date)) AS ?year)
+    WHERE
+    {
+        VALUES ?verb { wdt:P1411 wdt:P166 }
+        ?album wdt:P31 wd:Q208569.
+        ?album wdt:P175 ?artist.
+        ?artist ?verb ?award.
+        ?album wdt:P1476 ?title.
+        ?album wdt:P658 ?song.
+        ?album wdt:P577 ?date.
+        FILTER(!CONTAINS(?songTitle,";")). 
+        SERVICE wikibase:label { 
+        bd:serviceParam wikibase:language "en". 
+        ?artist rdfs:label ?artistName.
+        ?album rdfs:label ?albumTitle.
+        ?song rdfs:label ?songTitle.
+        }
+    }
+    GROUP BY ?albumTitle
+    ORDER BY RAND()
+    LIMIT 1000
+}

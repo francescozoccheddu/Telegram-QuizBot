@@ -19,6 +19,7 @@ SELECT (?directorLabel AS ?director) ?movies
                 ?movie wdt:P31 wd:Q11424.
                 ?movie ?verb ?award.
                 ?movie wdt:P57 ?director.
+                FILTER(!CONTAINS(?movieLabel, ";")).
                 SERVICE wikibase:label 
                 { 
                     bd:serviceParam wikibase:language "en". 
@@ -29,4 +30,5 @@ SELECT (?directorLabel AS ?director) ?movies
         }.
         SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
     }
+    LIMIT 1000
 }

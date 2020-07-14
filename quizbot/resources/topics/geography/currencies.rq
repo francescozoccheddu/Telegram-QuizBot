@@ -8,4 +8,5 @@ SELECT (?currencyLabel AS ?currency)
         ?country wdt:P38 ?currency.
         SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
     }
+    LIMIT 1000
 }

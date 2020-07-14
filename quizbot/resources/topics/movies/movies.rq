@@ -20,4 +20,5 @@ SELECT (?movieLabel AS ?movie) ?director ?year ?actors
         }
     }
     GROUP BY ?movieLabel
+    LIMIT 1000
 }

@@ -1,13 +1,13 @@
 
 class Querier:
 
-    def __init__(self, url, prefixes=[]):
+    def __init__(self, url):
         try:
-            from SPARQLWrapper import SPARQLWrapper2
+            from SPARQLWrapper import SPARQLWrapper, JSON
             self._url = url
-            self._client = SPARQLWrapper2(url)
-            self._prefixes = prefixes
-            self._prefix = prefix(*prefixes)
+            agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
+            self._client = SPARQLWrapper(url, agent=agent)
+            self._client.setReturnFormat(JSON)
         except:
             raise QuerierError()
 
@@ -15,49 +15,32 @@ class Querier:
     def endpointUrl(self):
         return self._url
 
-    @property
-    def prefixes(self):
-        return self._prefixes
-
-    def _buildResult(self, query, result, converters={}):
+    def _buildResult(self, query, result):
         import pandas
         table = {}
-        for column in result.variables:
-            converter = converters.get(column, identityConverter)
-            data = [converter(row[column].value) for row in result.bindings]
+        columns = result['head']['vars']
+        rows = result['results']['bindings']
+        for column in columns:
+            data = [row[column]['value'] for row in rows]
             table[column] = data
         return pandas.DataFrame(data=table)
 
     def _query(self, query):
         try:
             self._client.setQuery(query)
-            return self._client.query()
+            return self._client.queryAndConvert()
         except:
             raise QuerierError()
 
-    def query(self, query, converters={}):
-        query = self._prefix + '\n' + query
+    def query(self, query):
         result = self._query(query)
-        return self._buildResult(query, result, converters)
+        return self._buildResult(query, result)
 
 
-def query(url, query, prefixes=[], converters={}):
-    return Querier(url, prefixes).query(query, converters)
+def query(url, query):
+    return Querier(url).query(query)
 
 
 class QuerierError(Exception):
     pass
 
-
-def identityConverter(value):
-    return value
-
-
-def makeListConverter(delimiter=';', converter=identityConverter):
-    def listConverter(value):
-        return [converter(i) for i in value.split(delimiter)]
-    return listConverter
-
-
-def boolConverter(value):
-    return value.strip().lower() == 'true'
