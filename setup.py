@@ -3,6 +3,7 @@ from distutils.core import setup
 import os
 _scripts_dir = os.path.dirname(os.path.realpath(__file__))
 _requirements_file = os.path.join(_scripts_dir, 'requirements.txt')
+_extra_requirements_file = os.path.join(_scripts_dir, 'extra_requirements.txt')
 _readme_file = os.path.join(_scripts_dir, 'README.md')
 
 with open(_readme_file, 'r') as file:
@@ -10,6 +11,9 @@ with open(_readme_file, 'r') as file:
 
 with open(_requirements_file) as f:
     _requirements = f.read().splitlines()
+
+with open(_extra_requirements_file) as f:
+    _extra_requirements = f.read().splitlines()
 
 setup(
     name='QuizBot',
@@ -25,5 +29,6 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
     packages=['quizbot'],
-    install_requires=_requirements
+    install_requires=_requirements,
+    extra_require=_requirements
 )

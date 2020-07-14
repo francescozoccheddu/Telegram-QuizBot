@@ -1,4 +1,4 @@
-
+import threading
 import random
 from ..utils import resources
 
@@ -14,6 +14,19 @@ def randomTopic():
     return random.sample(topics, 1)[0] if len(topics) > 0 else None
 
 
+def readyAllDependenciesWithUI():
+    from ..utils import progress
+    print('Processing quiz topics dependencies. This may take minutes.')
+    progress.ui(readyAllDependencies, 'topics')
+
+
+def readyAllDependencies(task=None):
+    if task is not None:
+        tasks = task.split(names=[t.name for t in topics])
+    for i, t in enumerate(topics):
+        t.readyAllDependencies(tasks[i] if task is not None else None)
+
+
 class Topic:
 
     def __init__(self, name):
@@ -21,12 +34,10 @@ class Topic:
             raise TypeError('Unexpected name type')
         self._questions = set()
         self._name = name
-        self._dependencies = set()
         topics.add(self)
 
     def _registerQuestion(self, question):
         self._questions.add(question)
-        self._dependencies.update(question.dependencies)
 
     @property
     def name(self):
@@ -36,22 +47,30 @@ class Topic:
     def questions(self):
         return self._questions
 
-    @property
-    def allDependencies(self):
-        return self._dependencies
-
-    @property
-    def areAllReady(self):
-        return all(d.isReady for d in self._dependencies)
-
-    def readyAll(self):
-        for d in self._dependencies:
-            d()
+    def readyAllDependencies(self, task=None):
+        dependencies = set()
+        for q in self._questions:
+            dependencies.update(q.dependencies)
+        dependencies = set(filter(lambda d: not d.isReady, dependencies))
+        if task is not None:
+            if len(dependencies) > 0:
+                task.stepCount = len(dependencies)
+            else:
+                task.done()
+        for d in dependencies:
+            try:
+                d()
+            except Exception as e:
+                if task is not None:
+                    task.error(f'Exception on dependency "{d.producerName}": {repr(e)}')
+            if task is not None:
+                task.nextStep()
 
     def randomQuestionFactory(self, difficulty, includeNotReady=False):
         if 0 > difficulty > 1:
             raise ValueError('Difficulty must fall in range [0,1]')
         questions = [q for q in self._questions if (includeNotReady or q.isReady)]
+
         def _weight(question):
             diff = 1 - abs(difficulty - question.difficulty)
             a, b = _probabilityPerDifficultyRange
@@ -114,7 +133,7 @@ class QuestionFactory:
     def isReady(self):
         return all(d.isReady for d in self._dependencies)
 
-    def ready(self):
+    def ready(self, task=None):
         for d in self._dependencies:
             d()
 
@@ -138,23 +157,29 @@ class QuestionDependency:
         self._producer = producer
         self._data = None
         self._cache = cache
+        self._lock = threading.Lock()
 
-    def __call__(self):
-        if not self._ready:
-            from ..utils import resources
-            if self._cache is not None:
-                cacheFile = f'.{self.__class__.__qualname__}_cache/{self.functionName}'
-                self._ready, self._data = resources.loadCache(cacheFile)
+    def __call__(self, task=None):
+        with self._lock:
             if not self._ready:
-                try:
-                    self._data = self._producer()
-                except:
-                    raise DependencyError()
-                else:
-                    if self._cache:
-                        resources.storeCache(cacheFile, self._data)
-                    self._ready = True
-        return self._data
+                from ..utils import resources
+                if self._cache is not None:
+                    cacheFile = f'.{self.__class__.__qualname__}_cache/{self.producerName}'
+                    self._ready, self._data = resources.loadCache(cacheFile)
+                if not self._ready:
+                    try:
+                        self._data = self._producer()
+                    except Exception as e:
+                        if task is not None:
+                            task.fail(e)
+                        raise
+                    else:
+                        if task is not None:
+                            task.done()
+                        if self._cache:
+                            resources.storeCache(cacheFile, self._data)
+                        self._ready = True
+            return self._data
 
     @property
     def data(self):
@@ -163,7 +188,7 @@ class QuestionDependency:
         return self._data
 
     @property
-    def functionName(self):
+    def producerName(self):
         return f'{self._producer.__module__}.{self._producer.__qualname__}'
 
     @property
@@ -174,11 +199,7 @@ class QuestionDependency:
         return f'{self.__class__.__qualname__}({self._producer})'
 
     def __str__(self):
-        return self.functionName
-
-
-class DependencyError(Exception):
-    pass
+        return self.producerName
 
 
 def question(topic, difficulty=0.5, dependencies=[]):

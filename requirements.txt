@@ -2,3 +2,4 @@ sparqlwrapper
 python-telegram-bot
 pandas
 humanize
+tqdm

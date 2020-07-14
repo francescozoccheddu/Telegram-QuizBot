@@ -1,0 +1,7 @@
+{
+    "endpoint": "https://query.wikidata.org/sparql",
+    "queryFile": "./continents.rq",
+    "converters": {
+        "hasCountries": "bool"
+    }
+}

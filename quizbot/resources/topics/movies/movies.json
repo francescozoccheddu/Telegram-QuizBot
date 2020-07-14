@@ -1,0 +1,8 @@
+{
+    "endpoint": "https://query.wikidata.org/sparql",
+    "queryFile": "./movies.rq",
+    "converters": {
+        "actors": "list",
+        "year": "int"
+    }
+}

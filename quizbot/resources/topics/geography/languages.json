@@ -1,0 +1,4 @@
+{
+    "endpoint": "https://query.wikidata.org/sparql",
+    "queryFile": "./languages.rq"
+}

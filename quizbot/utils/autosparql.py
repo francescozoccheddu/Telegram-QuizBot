@@ -42,9 +42,21 @@ def queryByDescriptor(descriptor, relativePath=None):
     return data
 
 
-def queryByDescriptors(descriptors, filter=None, relativePath=None):
-    return {k: queryByDescriptor(v, relativePath) for k, v in descriptors.items() if filter is None or k in filter}
+def queryByDescriptorDict(descriptors, filter=None, relativePath=None, progressCallback=None):
+    keys = set(descriptors.keys())
+    if filter is not None:
+        keys = keys.intersection(set(filter))
+    result = {}
+    for i, key in enumerate(keys):
+        result[key] = queryByDescriptor(descriptors[key], relativePath)
+        if progressCallback is not None:
+            progressCallback(i + 1, len(keys))
+    return result
 
 
-def queryByDescriptorsResource(filename, filter=None):
-    return queryByDescriptors(resources.json(filename), filter, os.path.dirname(filename))
+def queryByDescriptorResource(filename):
+    return queryByDescriptor(resources.json(filename), os.path.dirname(filename))
+
+
+def queryByDescriptorDictResource(filename, filter=None, progressCallback=None):
+    return queryByDescriptorDict(resources.json(filename), filter, os.path.dirname(filename), progressCallback)
