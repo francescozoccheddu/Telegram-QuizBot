@@ -1,0 +1,20 @@
+SELECT (?artistLabel AS ?artist)
+{
+    SELECT ?artistLabel
+    WHERE
+    {
+        {
+            SELECT DISTINCT ?artist
+            WHERE
+            {
+                VALUES ?verb { wdt:P1411 wdt:P166 }
+                ?album wdt:P31 wd:Q208569.
+                ?album wdt:P175 ?artist.
+                ?artist ?verb ?award.
+            }
+            ORDER BY RAND()
+            LIMIT 800
+        }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    }
+}

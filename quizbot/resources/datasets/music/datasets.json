@@ -6,5 +6,9 @@
             "songs": "list",
             "year": "int"
         }
+    },
+    "artists": {
+        "endpoint": "https://query.wikidata.org/sparql",
+        "query": "@artists.rq"
     }
 }
