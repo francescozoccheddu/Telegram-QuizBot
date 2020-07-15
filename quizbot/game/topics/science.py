@@ -7,9 +7,8 @@ import random
 def whichChemicalElementBySymbol(e):
     sample = e.sample(1)
     name, symbol = sample.iloc[0]
-    e = e[~e.index.isin(sample.index)]
-    sim = e.name.map(lambda n: textdistance.prefix.similarity(n, symbol))
-    best = e.name[sim.nlargest(answersCount() - 1 + 2).sample(answersCount() - 1).index]
+    sim = e.name.map(lambda n: 0 if n == name else textdistance.prefix.similarity(n, symbol) + 1/100)
+    best = e.name.sample(answersCount() - 1, weights=sim)
     return f'What chemical element has symbol {symbol}?', (name, *best)
 
 
@@ -17,7 +16,6 @@ def whichChemicalElementBySymbol(e):
 def whichSymbolByChemicalElement(e):
     sample = e.sample(1)
     name, symbol = sample.iloc[0]
-    e = e[~e.index.isin(sample.index)]
-    sim = e.symbol.map(lambda s: textdistance.prefix.similarity(s, name))
-    best = e.symbol[sim.nlargest(answersCount() - 1 + 2).sample(answersCount() - 1).index]
+    sim = e.symbol.map(lambda s: 0 if s == symbol else textdistance.prefix.similarity(s, name) + 1/100)
+    best = e.symbol.sample(answersCount() - 1, weights=sim)
     return f'What is the symbol of {name}?', (symbol, *best)

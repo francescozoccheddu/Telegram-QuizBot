@@ -69,11 +69,14 @@ def randomQuestion(difficulty=None, topics=None, includeNotReady=False):
 
 
 def readyAllWithUI(reloadDescriptors=False):
+    def plural(n):
+        return 's' if n != 1 else ''
     if _datasets is None or reloadDescriptors:
         print('Loading datasets descriptors...')
         loadDatasets()
         ready = sum(1 for d in _datasets.values() if d.isReady)
-        print(f'Done loading {len(_datasets)} dataset descriptor(s) ({ready} dataset(s) from cache).')
+        readyMessage = f' ({ready} dataset{plural(ready)} from cache)' if ready > 0 else ''
+        print(f'Done loading {len(_datasets)} dataset descriptor{plural(len(_datasets))}{readyMessage}.')
     print('Collecting datasets... (This may take minutes)')
     from . import topics
     try:
@@ -97,10 +100,8 @@ def readyAllWithUI(reloadDescriptors=False):
     if bar is not None:
         bar.close()
     nonready = sum(1 for d in _datasets.values() if not d.isReady)
-    if nonready == 0:
-        print('Done. All datasets are ready.')
-    else:
-        print(f'Done. (Failed to collect {nonready} dataset(s))')
+    failsMessage = ' All datasets are ready.' if nonready == 0 else f' (Failed to collect {nonready} dataset{plural(nonready)}'
+    print(f'Done.{failsMessage}')
     print('Caching datasets...')
     cacheDatasets()
     print('Done.')

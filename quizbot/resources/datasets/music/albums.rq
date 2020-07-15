@@ -20,5 +20,5 @@ SELECT (?albumTitle AS ?album) ?artist ?songs ?year
     }
     GROUP BY ?albumTitle
     ORDER BY RAND()
-    LIMIT 1000
+    LIMIT 800
 }

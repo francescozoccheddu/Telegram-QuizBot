@@ -1,5 +1,5 @@
 {
-    "music": {
+    "albums": {
         "endpoint": "https://query.wikidata.org/sparql",
         "query": "@albums.rq",
         "converters": {
