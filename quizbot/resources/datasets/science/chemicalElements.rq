@@ -1,12 +1,15 @@
-SELECT ?name ?symbol
-WHERE
+SELECT (?lowerName AS ?name) (?lowerSymbol AS ?symbol)
 {
-    ?element wdt:P31 wd:Q11344.
-    ?element wdt:P246 ?symbol.
-    FILTER NOT EXISTS { ?element wdt:P31 wd:Q1299291 }.
-    SERVICE wikibase:label 
-    { 
-        bd:serviceParam wikibase:language "en". 
-        ?element rdfs:label ?name.
-    } 
+    SELECT (LCASE(?name) AS ?lowerName) (LCASE(?symbol) AS ?lowerSymbol)
+    WHERE
+    {
+        ?element wdt:P31 wd:Q11344.
+        ?element wdt:P246 ?symbol.
+        FILTER NOT EXISTS { ?element wdt:P31 wd:Q1299291 }.
+        SERVICE wikibase:label 
+        { 
+            bd:serviceParam wikibase:language "en". 
+            ?element rdfs:label ?name.
+        } 
+    }
 }

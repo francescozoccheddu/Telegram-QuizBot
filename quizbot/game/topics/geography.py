@@ -27,28 +27,28 @@ def whichCountryByCapital(countries):
     return f'What country is {capital} the capital of?', answers
 
 
-@question("geography", datasets=["geography/countries", "languages"])
+@question("geography", datasets=["geography/countries", "geography/languages"])
 def whichLanguageByCountry(countries, languages):
     country, language = _countryWithSingleAttribute(countries, 'languages')
     answers = _answersByList(languages, language)
     return f'What is the official language of {country}?', answers
 
 
-@question("geography", datasets=["geography/countries", "currencies"])
+@question("geography", datasets=["geography/countries", "geography/currencies"])
 def whichCurrencyByCountry(countries, currencies):
     country, currency = _countryWithSingleAttribute(countries, 'currencies')
     answers = _answersByList(currencies, currency)
     return f'What is the official currency of {country}?', answers
 
 
-@question("geography", datasets=["geography/countries", "continents"])
+@question("geography", datasets=["geography/countries", "geography/continents"])
 def whichContinentByCountry(countries, continents):
     country, continent = _countryWithSingleAttribute(countries, 'continents')
     answers = _answersByList(continents, continent)
     return f'What is the continent of {country}?', answers
 
 
-@question("geography", datasets=["geography/countries", "continents"])
+@question("geography", datasets=["geography/countries", "geography/continents"])
 def whichCountryInContinent(countries, continents):
     d = data
     c = continents
@@ -59,7 +59,7 @@ def whichCountryInContinent(countries, continents):
     return f'Which country is in {continent}?', answers
 
 
-@question("geography", datasets=["geography/countries", "continents"])
+@question("geography", datasets=["geography/countries", "geography/continents"])
 def whichCountryNotInContinent(countries, continents):
     d = data
     c = continents

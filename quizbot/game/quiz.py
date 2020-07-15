@@ -34,35 +34,38 @@ def answersCount():
 
 
 def topics():
-    return set(_questionsByTopic.keys())
+    return tuple(_questionsByTopic.keys())
 
 
 def questions(topics=None, includeNotReady=False):
     if isinstance(topics, str):
         topics = [topics]
     if topics is None or len(topics) == 0:
-        return set(q for q in _allQuestions if includeNotReady or q.isReady)
+        return tuple(q for q in _allQuestions if includeNotReady or q.isReady)
     else:
         questions = set()
         for t in topics:
             qt = _questionsByTopic.get(t, [])
             questions.update(q for q in qt if includeNotReady or q.isReady)
-        return questions
+        return tuple(questions)
 
 
 def randomQuestion(difficulty=None, topics=None, includeNotReady=False):
-    if 0 > difficulty > 1:
-        raise ValueError('Difficulty must fall in range [0,1]')
     pool = questions(topics, includeNotReady)
-
-    def _weight(q):
-        diff = 1 - abs(difficulty - q.difficulty)
-        a, b = _config['probabilityPerDifficultyRange']
-        return a + diff * (b - a)
-
     if len(pool) == 0:
         return None
-    return random.choices(pool, weights=list(map(_weight, pool)))[0]
+    if difficulty is not None:
+        if 0 > difficulty > 1:
+            raise ValueError('Difficulty must fall in range [0,1]')
+
+        def _weight(q):
+            diff = 1 - abs(difficulty - q.difficulty)
+            a, b = _config['probabilityPerDifficultyRange']
+            return a + diff * (b - a)
+
+        return random.choices(pool, weights=list(map(_weight, pool)))[0]
+    else:
+        return random.choice(pool)
 
 
 def readyAllWithUI(reloadDescriptors=False):
