@@ -1,8 +1,0 @@
-{
-    "endpoint": "https://query.wikidata.org/sparql",
-    "queryFile": "./albums.rq",
-    "converters": {
-        "songs": "list",
-        "year": "int"
-    }
-}

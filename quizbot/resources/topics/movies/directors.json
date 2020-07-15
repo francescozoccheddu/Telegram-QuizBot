@@ -1,7 +1,0 @@
-{
-    "endpoint": "https://query.wikidata.org/sparql",
-    "queryFile": "./directors.rq",
-    "converters": {
-        "movies": "list"
-    }
-}

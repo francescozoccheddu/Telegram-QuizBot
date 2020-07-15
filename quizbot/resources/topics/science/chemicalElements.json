@@ -1,4 +1,0 @@
-{
-    "endpoint": "https://query.wikidata.org/sparql",
-    "queryFile": "./chemicalElements.rq"
-}

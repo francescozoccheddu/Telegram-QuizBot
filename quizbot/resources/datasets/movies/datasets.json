@@ -1,0 +1,17 @@
+{
+    "movies": {
+        "endpoint": "https://query.wikidata.org/sparql",
+        "query": "@movies.rq",
+        "converters": {
+            "actors": "list",
+            "year": "int"
+        }
+    },
+    "directors": {
+        "endpoint": "https://query.wikidata.org/sparql",
+        "query": "@directors.rq",
+        "converters": {
+            "movies": "list"
+        }
+    }
+}

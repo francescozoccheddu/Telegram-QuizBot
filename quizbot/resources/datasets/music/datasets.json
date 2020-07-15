@@ -1,0 +1,10 @@
+{
+    "music": {
+        "endpoint": "https://query.wikidata.org/sparql",
+        "query": "@albums.rq",
+        "converters": {
+            "songs": "list",
+            "year": "int"
+        }
+    }
+}

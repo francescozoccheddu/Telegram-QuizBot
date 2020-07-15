@@ -1,0 +1,6 @@
+{
+    "geography": "@geography/datasets.json",
+    "movies": "@movies/datasets.json",
+    "music": "@music/datasets.json",
+    "science": "@science/datasets.json"
+}

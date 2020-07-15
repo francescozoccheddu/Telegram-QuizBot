@@ -1,5 +1,7 @@
 
 import os
+import re
+
 
 _scripts_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -11,6 +13,7 @@ def _path(folder):
 _resourcesPath = _path('resources')
 _cachePath = _path('cache')
 _dataPath = _path('data')
+_jsonLinkRegex = re.compile(r'^(@(?P<link>[^@].*)|\?(?P<lazyLink>[^\?].*))$')
 
 
 def _file(path, filename, read, binary=False):
@@ -29,9 +32,41 @@ def text(filename):
         return file.read()
 
 
-def json(filename):
+def _json(filename):
     import json
-    return json.loads(text(filename))
+    return json.load(_file(_resourcesPath, filename, True))
+
+
+def _linkJson(data, dirname, history):
+    if isinstance(data, str):
+        match = _jsonLinkRegex.match(data)
+        link = match.group('link') if match is not None else None
+        if link is not None:
+            if not os.path.isabs(link):
+                link = os.path.join(dirname, link)
+            link = os.path.normpath(link)
+            if link.lower().endswith('.json'):
+                if link in history:
+                    raise RecursionError('Resource cycle detected', link=link)
+                return _linkJson(_json(link), os.path.dirname(link), history.union({link}))
+            else:
+                return text(link)
+        else:
+            lazyLink = match.group('lazyLink') if match is not None else None
+            if lazyLink is not None and not os.path.isabs(lazyLink):
+                return os.path.join(dirname, lazyLink)
+    elif isinstance(data, dict):
+        return {k: _linkJson(v, dirname, history) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [_linkJson(v, dirname, history) for v in data]
+    return data
+
+
+def json(filename, link=True):
+    data = _json(filename)
+    if link:
+        data = _linkJson(data, os.path.dirname(filename), {os.path.normpath(filename)})
+    return data
 
 
 def _load(path, filename):
@@ -53,6 +88,21 @@ def _store(path, filename, data):
     else:
         return True
 
+
+def _delete(path, filename):
+    realpath = os.path.join(path, filename)
+    try:
+        if os.path.isdir(path):
+            import shutil
+            shutil.rmtree(realpath)
+        else:
+            os.remove(realpath)
+    except:
+        return False
+    else:
+        return True
+
+
 def loadCache(filename):
     return _load(_cachePath, filename)
 
@@ -61,9 +111,17 @@ def storeCache(filename, data):
     return _store(_cachePath, filename, data)
 
 
+def deleteCache(path):
+    return _delete(_cachePath, path)
+
+
 def load(filename):
     return _load(_dataPath, filename)
 
 
 def store(filename, data):
     return _store(_dataPath, filename, data)
+
+
+def delete(path):
+    return _delete(_dataPath, path)

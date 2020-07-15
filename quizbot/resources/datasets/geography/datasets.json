@@ -1,0 +1,32 @@
+{
+    "continents": {
+        "endpoint": "https://query.wikidata.org/sparql",
+        "query": "@continents.rq",
+        "converters": {
+            "hasCountries": "bool"
+        }
+    },
+    "currencies": {
+        "endpoint": "https://query.wikidata.org/sparql",
+        "query": "@currencies.rq"
+    },
+    "countries": {
+        "endpoint": "https://query.wikidata.org/sparql",
+        "query": "@countries.rq",
+        "converters": {
+            "continents": "list",
+            "currencies": "list",
+            "borders": "list",
+            "cities": "list",
+            "languages": "list",
+            "area": "float",
+            "population": "int",
+            "populationDensity": "float",
+            "gdp": "float"
+        }
+    },
+    "languages": {
+        "endpoint": "https://query.wikidata.org/sparql",
+        "query": "@languages.rq"
+    }
+}

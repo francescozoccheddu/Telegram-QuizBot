@@ -1,4 +1,6 @@
 {
     "answersCount": 4,
-    "probabilityPerDifficultyRange": [0.5, 1]
+    "probabilityPerDifficultyRange": [0.5, 1],
+    "datasetsFile": "?datasets/datasets.json",
+    "datasetsCacheFile": "datasets"
 }
