@@ -1,21 +1,23 @@
 from ..quiz import question, answersCount
-import textdistance
 import random
 
 
-@question('science', 0, ['science/chemicalElements'])
-def whichChemicalElementBySymbol(e):
-    sample = e.sample(1)
-    name, symbol = sample.iloc[0]
-    sim = e.name.map(lambda n: 0 if n == name else textdistance.prefix.similarity(n, symbol) + 1/100)
-    best = e.name.sample(answersCount() - 1, weights=sim)
-    return f'What chemical element has symbol {symbol}?', (name, *best)
+def _similarity(target, exclude, min):
+    import textdistance
+    return lambda v: 0 if v == exclude else textdistance.prefix.similarity(v, target) + min
 
 
 @question('science', 0, ['science/chemicalElements'])
-def whichSymbolByChemicalElement(e):
-    sample = e.sample(1)
-    name, symbol = sample.iloc[0]
-    sim = e.symbol.map(lambda s: 0 if s == symbol else textdistance.prefix.similarity(s, name) + 1/100)
-    best = e.symbol.sample(answersCount() - 1, weights=sim)
-    return f'What is the symbol of {name}?', (symbol, *best)
+def whichChemicalElementBySymbol(els):
+    name, symbol = els.sample(1).iloc[0]
+    weights = els.name.map(_similarity(symbol, name, 1/100))
+    wrongNames = els.name.sample(answersCount() - 1, weights=weights)
+    return f'What chemical element has symbol {symbol}?', (name, *wrongNames)
+
+
+@question('science', 0, ['science/chemicalElements'])
+def whichSymbolByChemicalElement(els):
+    name, symbol = els.sample(1).iloc[0]
+    weights = els.symbol.map(_similarity(symbol, name, 1/100))
+    wrongSymbols = els.symbol.sample(answersCount() - 1, weights=weights)
+    return f'What is the symbol of {name}?', (symbol, *wrongSymbols)
