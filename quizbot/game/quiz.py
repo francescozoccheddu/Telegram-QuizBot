@@ -133,7 +133,6 @@ def readyAllDatasets(onProgress=None, onFailure=None):
         if onProgress is not None:
             onProgress(i + 1, len(datasets))
 
-#TODO Reintroduce question difficulty
 class Question:
 
     def __init__(self, producer, topic, difficulty=0.5, datasets=[]):

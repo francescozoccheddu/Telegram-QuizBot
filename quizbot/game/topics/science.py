@@ -2,9 +2,9 @@ from ..quiz import question, answersCount
 import random
 
 
-def _similarity(target, exclude, min):
+def _similarity(target, exclude, base):
     import textdistance
-    return lambda v: 0 if v == exclude else textdistance.prefix.similarity(v, target) + min
+    return lambda v: 0 if v == exclude else textdistance.prefix.similarity(v, target) + base
 
 
 @question('science', 0, ['science/chemicalElements'])
