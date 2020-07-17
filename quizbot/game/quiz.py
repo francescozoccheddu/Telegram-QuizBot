@@ -63,7 +63,7 @@ def randomQuestion(difficulty=None, topics=None, includeNotReady=False):
             a, b = _config['probabilityPerDifficultyRange']
             return a + diff * (b - a)
 
-        return random.choices(pool, weights=list(map(_weight, pool)))[0]
+        return random.sample(pool, weights=list(map(_weight, pool)))[0]
     else:
         return random.choice(pool)
 

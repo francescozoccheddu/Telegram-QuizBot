@@ -45,10 +45,6 @@ def whatMovieByActor(mvs):
 @question('movies', 0, ['movies/movies'])
 def whatActorByMovie(mvs):
     movie, year, director, actors = mvs.sample(1).iloc[0][['movie', 'year', 'director', 'actors']]
-    actor = random.choice(actors)
-    wrongActors = set()
-    for movieActors in mvs.actors:
-        wrongActors.update(movieActors)
-    wrongActors.discard(actor)
-    wrongActors = random.choices(list(wrongActors), k=answersCount()-1)
-    return f'Who starred in the {year} movie "{movie}" by "{director}"?', (actor, wrongActors)
+    collector = questions.Collector(actors)
+    collector.addIterable(mvs.actors)
+    return f'Who starred in the {year} movie "{movie}" by "{director}"?', collector.answers

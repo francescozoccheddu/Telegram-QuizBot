@@ -1,23 +1,26 @@
-from ..quiz import question, answersCount
+from ..quiz import question
+from ...utils import questions
 import random
 
-
-def _similarity(target, exclude, base):
+def _similarity(a, b):
     import textdistance
-    return lambda v: 0 if v == exclude else textdistance.prefix.similarity(v, target) + base
+    return textdistance.prefix.similarity(a, b)
+
+def _similarityMap(target, offset=0):
+    return lambda v: _similarity(target, v) + offset
 
 
 @question('science', 0, ['science/chemicalElements'])
 def whichChemicalElementBySymbol(els):
     name, symbol = els.sample(1).iloc[0]
-    weights = els.name.map(_similarity(symbol, name, 1/100))
-    wrongNames = els.name.sample(answersCount() - 1, weights=weights)
-    return f'What chemical element has symbol {symbol}?', (name, *wrongNames)
+    collector = questions.Collector(name)
+    collector.add(els.name, weights=els.name.map(_similarityMap(symbol, 1 / 100)))
+    return f'What chemical element has symbol {symbol}?', collector.answers
 
 
 @question('science', 0, ['science/chemicalElements'])
 def whichSymbolByChemicalElement(els):
     name, symbol = els.sample(1).iloc[0]
-    weights = els.symbol.map(_similarity(symbol, name, 1/100))
-    wrongSymbols = els.symbol.sample(answersCount() - 1, weights=weights)
-    return f'What is the symbol of {name}?', (symbol, *wrongSymbols)
+    collector = questions.Collector(symbol)
+    collector.add(els.symbol, weights=els.symbol.map(_similarityMap(name, 1 / 100)))
+    return f'What is the symbol of {name}?', collector.answers

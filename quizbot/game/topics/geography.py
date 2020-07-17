@@ -1,73 +1,76 @@
 from ..quiz import question, answersCount
 import random
+from ...utils import questions
 
 
-def _countryWithSingleAttribute(countries, key):
-    c = countries
-    c = c[c[key].apply(lambda l: len(l) == 1)].sample(1)
-    return c.country.iloc[0], c[key].iloc[0][0]
+def _countrySimilarity(a, b):
+    score = 0
+    if b.country in a.borders:
+        score += 2
+    if len(set(a.continents) & set(b.continents)) > 0:
+        score += 1
+    return score
 
 
-def _answersByList(data, rightAnswer):
-    d = data.sample(answersCount())
-    d = d[d.iloc[:, 0] != rightAnswer].sample(answersCount() - 1).iloc[:, 0]
-    return [rightAnswer] + list(d)
+def _countriesBySimilarity(countries, country):
+    import random
+    def similarity(c): return _countrySimilarity(country, c) + random.random()
+    return countries.iloc[countries.apply(similarity, axis=1).sort_values().index]
 
 
 @question("geography", datasets=["geography/countries"])
-def whichCapitalByCountry(countries):
-    pass
+def whichCapitalByCountry(cts):
+    right = cts.sample(1).iloc[0]
+    country, capital, cities = right[['country', 'capital', 'cities']]
+    collector = questions.Collector(capital)
+    collector.add(cities)
+    if not collector.full:
+        collector.addIterable(_countriesBySimilarity(cts, right).cities)
+    return f'What is the capital of {country}?', collector.answers
 
 
 @question("geography", datasets=["geography/countries"])
-def whichCountryByCapital(countries):
-    res = countries.sample(answersCount())
-    capital = res.capital.iloc[0]
-    answers = list(res.country)
-    return f'What country is {capital} the capital of?', answers
+def whichCountryByCapital(cts):
+    right = cts.sample(1).iloc[0]
+    country, capital = right[['country', 'capital']]
+    collector = questions.Collector(country)
+    ctss = _countriesBySimilarity(cts, right)
+    collector.add(ctss[ctss.capital != capital].country)
+    return f'What country is {capital} the capital of?', collector.answers
 
 
 @question("geography", datasets=["geography/countries", "geography/languages"])
-def whichLanguageByCountry(countries, languages):
-    country, language = _countryWithSingleAttribute(countries, 'languages')
-    answers = _answersByList(languages, language)
-    return f'What is the official language of {country}?', answers
+def whichLanguageByCountry(cts, lgs):
+    country, languages = cts.sample(1).iloc[0][['country', 'languages']]
+    collector = questions.Collector(languages)
+    collector.add(lgs.language)
+    return f'What is the official language of {country}?', collector.answers
 
 
 @question("geography", datasets=["geography/countries", "geography/currencies"])
-def whichCurrencyByCountry(countries, currencies):
-    country, currency = _countryWithSingleAttribute(countries, 'currencies')
-    answers = _answersByList(currencies, currency)
-    return f'What is the official currency of {country}?', answers
+def whichCurrencyByCountry(cts, ccs):
+    country, currencies = cts.sample(1).iloc[0][['country', 'currencies']]
+    collector = questions.Collector(currencies)
+    collector.add(ccs.currency)
+    return f'What is the official currency of {country}?', collector.answers
 
 
 @question("geography", datasets=["geography/countries", "geography/continents"])
-def whichContinentByCountry(countries, continents):
-    country, continent = _countryWithSingleAttribute(countries, 'continents')
-    answers = _answersByList(continents, continent)
-    return f'What is the continent of {country}?', answers
+def whichContinentByCountry(cts, cns):
+    country, continents = cts.sample(1).iloc[0][['country', 'continents']]
+    collector = questions.Collector(continents)
+    collector.add(cns.continent)
+    return f'What is the continent of {country}?', collector.answers
 
 
 @question("geography", datasets=["geography/countries", "geography/continents"])
 def whichCountryInContinent(countries, continents):
-    d = data
-    c = continents
-    continent = c[c.hasCountries].sample(1).iloc[0][0]
-    right = d[d.continents.apply(lambda cs: [continent] == cs)].sample(1)
-    wrong = d[d.continents.apply(lambda cs: continent not in cs)].sample(answersCount() - 1)
-    answers = list(right.append(wrong).country)
-    return f'Which country is in {continent}?', answers
+    pass
 
 
 @question("geography", datasets=["geography/countries", "geography/continents"])
 def whichCountryNotInContinent(countries, continents):
-    d = data
-    c = continents
-    continent = c[c.hasCountries].sample(1).iloc[0][0]
-    right = d[d.continents.apply(lambda cs: continent not in cs)].sample(1)
-    wrong = d[d.continents.apply(lambda cs: [continent] == cs)].sample(answersCount() - 1)
-    answers = list(right.append(wrong).country)
-    return f'Which country is not in {continent}?', answers
+    pass
 
 
 @question("geography", datasets=["geography/countries"])
