@@ -30,6 +30,7 @@ SELECT
             {
                 ?country wdt:P31 wd:Q3624078.
                 ?country wdt:P47 ?border.
+                ?border wdt:P31 wd:Q3624078.
                 SERVICE wikibase:label 
                 {
                     bd:serviceParam wikibase:language "en".

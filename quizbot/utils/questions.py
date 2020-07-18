@@ -2,18 +2,48 @@ from ..game.quiz import answersCount
 from collections.abc import Iterable
 
 
-def years(right):
+def _around(right, rrange, min=None, max=None):
+    if min is not None and max is not None:
+        raise ValueError('Cannot use both constraints')
+    import random
+    fract = any(isinstance(r, float) for r in rrange)
+    randf = random.randrange if fract else random.randint
+    last, wrong = 0, []
+    for _ in range(answersCount() - 1):
+        last += randf(*rrange)
+        y = random.choice((-last, last)) + right
+        if max is not None and y > max:
+            y = right - last
+        if min is not None and y < min:
+            y = right + last
+        wrong.append(y)
+    return (right, *wrong)
+
+
+def dropDigits(value, digits):
+    if value == 0:
+        return 0
+    import math
+    actual = int(math.log10(abs(value))) + 1
+    div = 10 ** max(actual - digits, 0)
+    return int(round(abs(value) / div)) * div
+
+
+def years(right, rrange=(7, 13)):
     import datetime
     import random
     now = datetime.datetime.now().year
-    last, wrong = 0, []
-    for i in range(answersCount() - 1):
-        last += random.randint(7, 13)
-        y = random.choice((-last, last)) + right
-        if y > now:
-            y = right - last
-        wrong.append(y)
-    return (right, *wrong)
+    return _around(right, rrange, max=now)
+
+
+def farSample(s, distanceMap=None):
+    sample = s.sample(1)
+    if distanceMap is None:
+        def distanceMap(d): return d
+    for _ in range(answersCount() - 1):
+        w = s.apply(lambda v: min(distanceMap(abs(v - o)) for o in sample))
+        sample = sample.append(s.sample(1, weights=w))
+    return s[sample.index]
 
 
 def format(right, wrong, format):
