@@ -1,6 +1,7 @@
-from ..quiz import question
-from ...utils import questions
+from ..quizzer import answersCount
+from ..question import question
 import random
+from .. import utils
 
 def _similarity(a, b):
     from nltk.metrics.distance import jaro_winkler_similarity
@@ -13,7 +14,7 @@ def _similarityMap(target, offset=0):
 @question('science', 0, ['science/chemicalElements'])
 def whichChemicalElementBySymbol(els):
     name, symbol = els.sample(1).iloc[0]
-    collector = questions.Collector(name)
+    collector = utils.Collector(name)
     collector.add(els.name, weights=els.name.map(_similarityMap(symbol, 1 / 100)))
     return f'What chemical element has symbol {symbol}?', collector.answers
 
@@ -21,6 +22,6 @@ def whichChemicalElementBySymbol(els):
 @question('science', 0, ['science/chemicalElements'])
 def whichSymbolByChemicalElement(els):
     name, symbol = els.sample(1).iloc[0]
-    collector = questions.Collector(symbol)
+    collector = utils.Collector(symbol)
     collector.add(els.symbol, weights=els.symbol.map(_similarityMap(name, 1 / 100)))
     return f'What is the symbol of {name}?', collector.answers

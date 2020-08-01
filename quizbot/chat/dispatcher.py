@@ -49,6 +49,7 @@ class User:
 def onNotify(tags):
     if not isinstance(tags, (list, set, tuple)):
         raise TypeError('Unexpected tags type')
+
     def wrapper(handler):
         for tag in tags:
             handlers = _notifyHandlers.get(tag, None)

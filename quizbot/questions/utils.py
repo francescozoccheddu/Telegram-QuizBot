@@ -1,4 +1,4 @@
-from ..game.quiz import answersCount
+from .quizzer import answersCount
 from collections.abc import Iterable
 
 

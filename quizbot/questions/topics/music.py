@@ -1,13 +1,14 @@
-from ..quiz import question, answersCount
-from ...utils import questions
+from ..quizzer import answersCount
+from ..question import question
 import random
+from .. import utils
 
 
 
 @question('music', 0, ['music/albums'])
 def whatYearByAlbum(als):
     album, artist, year = als.sample(1).iloc[0][['album', 'artist', 'year']]
-    return f'When was "{album}" by {artist} pubblicated?', questions.years(year)
+    return f'When was "{album}" by {artist} pubblicated?', utils.years(year)
 
 
 @question('music', 0, ['music/albums'])
@@ -16,7 +17,7 @@ def whatAlbumByYear(als):
     year = right.year.iloc[0]
     weights = als.year.apply(lambda y: min(abs(y - year), 20) ** 8)
     wrong = als.sample(answersCount() - 1, weights=weights)
-    return f'What album was pubblicated in {year}?', questions.format(right, wrong, '"{album}" by {artist}')
+    return f'What album was pubblicated in {year}?', utils.format(right, wrong, '"{album}" by {artist}')
 
 
 @question('music', 0, ['music/albums', 'music/artists'])
@@ -47,4 +48,4 @@ def whatAlbumBySong(a):
     songs, album, year = right.iloc[0][['songs', 'album', 'year']]
     song = random.choice(songs)
     wrong = a[a.album != album].sample(answersCount() - 1)
-    return f'What album contained the song "{song}" in {year}?', questions.format(right, wrong, '"{album}" by {artist}')
+    return f'What album contained the song "{song}" in {year}?', utils.format(right, wrong, '"{album}" by {artist}')

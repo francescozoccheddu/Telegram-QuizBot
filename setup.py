@@ -18,6 +18,9 @@ setup(
     long_description=_readme,
     long_description_content_type='text/markdown',
     url='https://github.com/francescozoccheddu/telegram-quizbot',
+    entry_points={
+        'console_scripts': ['quizbot = quizbot.utils.launcher:main']
+    },
     license='MIT',
     classifiers=[
         'License :: OSI Approved :: MIT License',

@@ -75,8 +75,8 @@ def resolve(data, keyProvider):
 
 
 def mergeFromCache(datasetMap, cacheFilename):
-    from ..utils import resources
-    cached, cache = resources.loadCache(cacheFilename)
+    from ..utils import data
+    cached, cache = data.loadCache(cacheFilename)
     if cached:
         class DescriptorKey:
 
@@ -105,5 +105,5 @@ def fromResource(filename, keyProvider, cacheFilename=None):
 
 
 def cache(datasetMap, filename):
-    from ..utils import resources
-    return resources.storeCache(filename, [d for d in datasetMap.values() if d.isReady])
+    from ..utils import data
+    return data.storeCache(filename, [d for d in datasetMap.values() if d.isReady])

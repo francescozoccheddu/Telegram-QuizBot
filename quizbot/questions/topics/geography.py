@@ -1,6 +1,7 @@
-from ..quiz import question, answersCount
+from ..quizzer import answersCount
+from ..question import question
 import random
-from ...utils import questions
+from .. import utils
 
 
 def _countrySimilarity(a, b):
@@ -20,19 +21,19 @@ def _countriesBySimilarity(countries, country):
 
 def _humanizePopulation(population):
     import humanize
-    return humanize.intword(questions.dropDigits(population, 3))
+    return humanize.intword(utils.dropDigits(population, 3))
 
 
 def _farSampleBy(countries, by, exponent):
-    by = countries[by].apply(lambda v: questions.dropDigits(v, 2))
-    return countries.iloc[questions.farSample(by, lambda d: d**exponent).index]
+    by = countries[by].apply(lambda v: utils.dropDigits(v, 2))
+    return countries.iloc[utils.farSample(by, lambda d: d**exponent).index]
 
 
 @question("geography", datasets=["geography/countries"])
 def whichCapitalByCountry(cts):
     right = cts.sample(1).iloc[0]
     country, capital, cities = right[['country', 'capital', 'cities']]
-    collector = questions.Collector(capital)
+    collector = utils.Collector(capital)
     collector.add(cities)
     if not collector.full:
         collector.addIterable(_countriesBySimilarity(cts, right).cities)
@@ -43,7 +44,7 @@ def whichCapitalByCountry(cts):
 def whichCountryByCapital(cts):
     right = cts.sample(1).iloc[0]
     country, capital = right[['country', 'capital']]
-    collector = questions.Collector(country)
+    collector = utils.Collector(country)
     ctss = _countriesBySimilarity(cts, right)
     collector.add(ctss[ctss.capital != capital].country)
     return f'What country is {capital} the capital of?', collector.answers
@@ -52,7 +53,7 @@ def whichCountryByCapital(cts):
 @question("geography", datasets=["geography/countries", "geography/languages"])
 def whichLanguageByCountry(cts, lgs):
     country, languages = cts.sample(1).iloc[0][['country', 'languages']]
-    collector = questions.Collector(languages)
+    collector = utils.Collector(languages)
     collector.add(lgs.language)
     return f'What is the official language of {country}?', collector.answers
 
@@ -60,7 +61,7 @@ def whichLanguageByCountry(cts, lgs):
 @question("geography", datasets=["geography/countries", "geography/currencies"])
 def whichCurrencyByCountry(cts, ccs):
     country, currencies = cts.sample(1).iloc[0][['country', 'currencies']]
-    collector = questions.Collector(currencies)
+    collector = utils.Collector(currencies)
     collector.add(ccs.currency)
     return f'What is the official currency of {country}?', collector.answers
 
@@ -68,7 +69,7 @@ def whichCurrencyByCountry(cts, ccs):
 @question("geography", datasets=["geography/countries", "geography/continents"])
 def whichContinentByCountry(cts, cns):
     country, continents = cts.sample(1).iloc[0][['country', 'continents']]
-    collector = questions.Collector(continents)
+    collector = utils.Collector(continents)
     collector.add(cns.continent)
     return f'What is the continent of {country}?', collector.answers
 
@@ -77,7 +78,7 @@ def whichContinentByCountry(cts, cns):
 def whichCountryInContinent(cts, cns):
     continent = cns[cns.hasCountries].sample(1).iloc[0].continent
     country = cts[cts.continents.apply(lambda c: c == [continent])].sample(1).iloc[0].country
-    collector = questions.Collector(country)
+    collector = utils.Collector(country)
     collector.add(cts.country[cts.continents.apply(lambda c: continent not in c)])
     return f'What country is in {continent}?', collector.answers
 
@@ -86,7 +87,7 @@ def whichCountryInContinent(cts, cns):
 def whichCountryNotInContinent(cts, cns):
     continent = cns[cns.hasCountries].sample(1).iloc[0].continent
     country = cts[cts.continents.apply(lambda c: continent not in c)].sample(1).iloc[0].country
-    collector = questions.Collector(country)
+    collector = utils.Collector(country)
     collector.add(cts.country[cts.continents.apply(lambda c: continent in c)])
     return f'What country is not part of {continent}?', collector.answers
 
@@ -95,7 +96,7 @@ def whichCountryNotInContinent(cts, cns):
 def whichCountryByCity(cts):
     right = cts.sample(1).iloc[0]
     country, cities = right[['country', 'cities']]
-    collector = questions.Collector(country)
+    collector = utils.Collector(country)
     collector.add(_countriesBySimilarity(cts, right).country)
     return f'What country is {random.choice(cities)} in?', collector.answers
 
