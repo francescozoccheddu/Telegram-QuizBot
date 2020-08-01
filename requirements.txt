@@ -3,5 +3,4 @@ python-telegram-bot
 pandas
 humanize
 tqdm
-textdistance
-numpy
+nltk

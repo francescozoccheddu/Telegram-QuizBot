@@ -111,10 +111,7 @@ class Collector:
                     w = [weights(s) for s in sampleset]
                 else:
                     raise TypeError('Unexpected weights type')
-                from numpy import random
-                tot = sum(w)
-                if tot != 0:
-                    for i, v in enumerate(w):
-                        w[i] = v / tot
-                self._wrong.update(random.choice(sampleset, k, p=w, replace=False))
+                import pandas
+                sampleset = pandas.Series(sampleset)
+                self._wrong.update(sampleset.sample(n=k, weights=w))
         return self.full
