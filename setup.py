@@ -1,4 +1,6 @@
-from distutils.core import setup
+from setuptools import setup
+from setuptools.command.install import install
+from setuptools.command.develop import develop
 
 import os
 _scripts_dir = os.path.dirname(os.path.realpath(__file__))
@@ -10,6 +12,27 @@ with open(_readme_file, 'r') as file:
 
 with open(_requirements_file) as f:
     _requirements = f.read().splitlines()
+
+
+def runPostInstall():
+    print('Running post install script')
+    import postinstall
+    postinstall.run()
+
+
+class InstallCommand(install):
+
+    def run(self):
+        install.run(self)
+        runPostInstall()
+
+
+class DevelopCommand(develop):
+
+    def run(self):
+        develop.run(self)
+        runPostInstall()
+
 
 setup(
     name='QuizBot',
@@ -28,5 +51,9 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
     packages=['quizbot'],
+    cmdclass={
+        'install': InstallCommand,
+        'develop': DevelopCommand
+    },
     install_requires=_requirements
 )
