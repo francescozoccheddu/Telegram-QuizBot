@@ -8,6 +8,8 @@ _lemmatizer = WordNetLemmatizer()
 _stopWords = set(stopwords.words('english'))
 _singleWordRegex = re.compile(r'^(VB|NN|JJ|CD)[A-Z]*$')
 
+uselessVerbs = ['want', 'please', 'do', 'like', 'will', 'would']
+
 ADJ = wordnet.ADJ
 ADJ_SAT = wordnet.ADJ_SAT
 ADV = wordnet.ADV
@@ -71,18 +73,23 @@ def lerp(a, b, p):
     return a * (1 - p) + b * p
 
 
-def optimisticMean(l, min=0.25, ifEmpty=None):
-    if len(l) == 0:
-        return ifEmpty
-    m = max(l)
+def weightedMean(l, w):
     vsum, wsum = 0, 0
-    for v in l:
-        if v < 0:
-            raise ValueError('Negative values are not allowed')
-        w = min + (v / m) * (1 - min)
+    for v, w in zip(l, w):
         vsum += v * w
         wsum += w
     return vsum / wsum
+
+
+def optimisticMean(l, min=0.25, weights=None, ifEmpty=None):
+    if len(l) == 0:
+        return ifEmpty
+    m = max(l)
+    w = [min + (v / m) * (1 - min) for v in l]
+    if weights is not None:
+        for i in range(len(w)):
+            w[i] *= weights[i]
+    return weightedMean(l, w)
 
 
 def semanticSimilarity(a, b, pos=None, default=None):
@@ -105,7 +112,7 @@ def semanticSimilarity(a, b, pos=None, default=None):
     return optimisticMean(sss, ifEmpty=default)
 
 
-def singleWordSentences(sentences, syns, pos=None, default=None):
+def singleWordSentences(sentences):
     import string
     ms = []
     for ts in sentences:
@@ -117,3 +124,13 @@ def singleWordSentences(sentences, syns, pos=None, default=None):
 
 def notNone(l):
     return [i for i in l if i is not None]
+
+
+def withoutUselessVerbs(words):
+    return [w for w in words if semanticSimilarity(w, uselessVerbs, pos=VERB, default=0) < 0.5]
+
+
+def withPOS(taggedWords, pos):
+    if len(taggedWords) > 0 and isinstance(taggedWords[0], list):
+        return list(*(withPOS(s, pos) for s in taggedWords))
+    return [w for (w, t) in taggedWords if t.startswith(pos)]
