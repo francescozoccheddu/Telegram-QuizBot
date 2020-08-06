@@ -11,5 +11,7 @@ def _chatStarted(user):
     from .chatgame import ChatGame
     from . import intents
     from ..questions import topics
+    from .actions.remind import startMessage
     user.data = ChatGame()
-    user.send('Hello! Tell me when you want to start a new game.')
+    user.send('Hello!')
+    startMessage(user)

@@ -4,7 +4,7 @@ from . import utils as ut
 def remind(user):
     g = user.data
     if g.canDoRwa or g.canDoSq:
-        msg = 'Remember that you can '
+        msg = 'You can '
         if g.canDoRwa:
             from ..game import rwaAnswersCount
             k = rwaAnswersCount()
@@ -35,13 +35,14 @@ def _doRwa(user, force):
                 from ..game import rwaCooldownTurns
                 g.setYesNoAction(YesNoAction.DO_RWA)
                 turns = rwaCooldownTurns()
-                user.send(f'Are you sure you want to remove {ut.cardinal(k)} wrong answer{ut.plural(k)}?\n' + 
-                    f'You won\'t be able to use this lifeline again for {turns} turn{ut.plural(turns)}.')
+                user.send(f'Are you sure you want to remove {ut.cardinal(k)} wrong answer{ut.plural(k)}?\n' +
+                          f'You won\'t be able to use this lifeline again for {turns} turn{ut.plural(turns)}.')
         else:
             turns = g.rwaCooldown
             user.send(f'You have to wait {turns} more turn{ut.plural(turns)} to remove {ut.cardinal(k)} wrong answer{ut.plural(k)}.')
     else:
-        user.send('We are not playing yet!')
+        from . import remind
+        remind.notPlaying(user)
 
 
 def _doSq(user, force):
@@ -50,23 +51,23 @@ def _doSq(user, force):
     if g.isPlaying:
         if g.canDoSq:
             if force:
-                from . import base
+                from . import remind
                 g.doSq()
-                msg = 'Here is another question:\n'
-                msg += base.formatQuestion(g.question, g.answers)
-                user.send(msg)
+                user.send('Here is another question...')
+                remind.question(user)
             else:
                 from ..chatgame import YesNoAction
                 from ..game import sqCooldownTurns
                 g.setYesNoAction(YesNoAction.DO_SQ)
                 turns = sqCooldownTurns()
-                user.send(f'Are you sure you want to switch the question?\n' + 
-                    f'You won\'t be able to use this lifeline again for {turns} turn{ut.plural(turns)}.')
+                user.send(f'Are you sure you want to switch the question?\n' +
+                          f'You won\'t be able to use this lifeline again for {turns} turn{ut.plural(turns)}.')
         else:
             turns = g.sqCooldown
             user.send(f'You have to wait {turns} more turn{ut.plural(turns)} to switch the question again.')
     else:
-        user.send('We are not playing yet!')
+        from . import remind
+        remind.notPlaying(user)
 
 
 def doRwa(user):
