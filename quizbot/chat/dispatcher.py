@@ -1,5 +1,4 @@
 
-_notifyHandlers = {}
 _chatStartHandler = None
 _intents = set()
 _botMessageHandlers = {}
@@ -8,24 +7,19 @@ _botMessageHandlers = {}
 class User:
 
     def __init__(self, channel, key):
-        self._data = {}
+        self._data = None
         self._channel = channel
         self._key = key
         if _chatStartHandler is not None:
             _chatStartHandler(self)
 
-    def notify(self, tag, data=None):
-        for handler in _notifyHandlers.get(tag, []):
-            handler(self, tag, data)
+    @property
+    def data(self):
+        return self._data
 
-    def __getitem__(self, key):
-        return self._data.get(key, None)
-
-    def __setitem__(self, key, value):
-        if value is None:
-            self._data.pop(key)
-        else:
-            self._data[key] = value
+    @data.setter
+    def data(self, value):
+        self._data = value
 
     def __getstate__(self):
         return self._channel, self._key, self._data
@@ -44,20 +38,6 @@ class User:
 
     def __str__(self):
         return str((self._channel, self._key))
-
-
-def onNotify(tags):
-    if not isinstance(tags, (list, set, tuple)):
-        raise TypeError('Unexpected tags type')
-
-    def wrapper(handler):
-        for tag in tags:
-            handlers = _notifyHandlers.get(tag, None)
-            if handlers is None:
-                _notifyHandlers[tag] = handlers = set()
-            handlers.add(handler)
-        return handler
-    return wrapper
 
 
 def onChatStart(handler):

@@ -2,13 +2,16 @@ from nltk.tokenize import sent_tokenize, word_tokenize, MWETokenizer
 from nltk.tag import pos_tag
 from nltk.corpus import wordnet, stopwords
 from nltk.stem import WordNetLemmatizer
+from nltk.metrics.distance import edit_distance
 import re
+import string
 
 _lemmatizer = WordNetLemmatizer()
-_stopWords = set(stopwords.words('english'))
+_stopWords = set(stopwords.words('english')) | set(string.punctuation)
 _singleWordRegex = re.compile(r'^(VB|NN|JJ|CD)[A-Z]*$')
+_multipleSpacesRegex = re.compile(r'\s+')
 
-uselessVerbs = ['want', 'please', 'do', 'like', 'will', 'would']
+uselessVerbs = ['want', 'please', 'do', 'like', 'will', 'would', 'think', 'am']
 
 ADJ = wordnet.ADJ
 ADJ_SAT = wordnet.ADJ_SAT
@@ -55,7 +58,7 @@ def _synset(w, pos=None):
 
 def tagAndLemmatizeWords(words):
     taggedWords = pos_tag(words)
-    return [(_lemmatize(w, t), t) for (w, t) in taggedWords]
+    return [(_lemmatize(w, t), t) for w, t in taggedWords]
 
 
 def tagAndLemmatizeSentences(sentences, multiwords=[]):
@@ -116,7 +119,7 @@ def singleWordSentences(sentences):
     import string
     ms = []
     for ts in sentences:
-        ws = [w for (w, t) in ts if w not in _stopWords and w not in string.punctuation and _singleWordRegex.match(t)]
+        ws = [w for w, t in ts if w not in _stopWords and _singleWordRegex.match(t)]
         if len(ws) == 1:
             ms += ws
     return ms
@@ -133,4 +136,32 @@ def withoutUselessVerbs(words):
 def withPOS(taggedWords, pos):
     if len(taggedWords) > 0 and isinstance(taggedWords[0], list):
         return list(*(withPOS(s, pos) for s in taggedWords))
-    return [w for (w, t) in taggedWords if t.startswith(pos)]
+    return [w for w, t in taggedWords if t.startswith(pos)]
+
+
+def normalize(message):
+    return ' '.join(w for w in word_tokenize(message.lower()) if w not in _stopWords)
+
+
+def editSimilarity(a, b):
+    a = normalize(a)
+    b = normalize(b)
+    return max(1 - (edit_distance(a, b) / max(1, len(a), len(b))), 0)
+
+
+def bowSimilarity(words, bow, default):
+    import string
+    bow = dict((w.strip().lower(), c) for w, c in bow.items())
+    if isinstance(words, str):
+        tlss = tagAndLemmatizeSentences(words)
+    else:
+        tlss = words
+    tws = [w.strip().lower() for s in tlss for w, t in s if w.strip().lower() in bow or w not in _stopWords]
+    sim = 0
+    for w in tws:
+        sim += bow.get(w, default)
+    return min(max(sim, 0), 1)
+
+
+def constantCostBow(words, cost):
+    return dict(zip(words, [cost] * len(words)))

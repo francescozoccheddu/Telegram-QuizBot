@@ -31,7 +31,7 @@ def whatMovieByYear(mvs):
 @question('movies', 0, ['movies/movies'])
 def whatYearByMovie(mvs):
     movie, director, year = mvs.sample(1).iloc[0][['movie', 'director', 'year']]
-    return f'When was "{movie}" by {director} pubblicated?', utils.years(year)
+    return f'When was "{movie}" by {director} pubblicated?', tuple(str(y) for y in utils.years(year))
 
 
 @question('movies', 0, ['movies/movies'])

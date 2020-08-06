@@ -8,7 +8,7 @@ from .. import utils
 @question('music', 0, ['music/albums'])
 def whatYearByAlbum(als):
     album, artist, year = als.sample(1).iloc[0][['album', 'artist', 'year']]
-    return f'When was "{album}" by {artist} pubblicated?', utils.years(year)
+    return f'When was "{album}" by {artist} pubblicated?', tuple(str(y) for y in utils.years(year))
 
 
 @question('music', 0, ['music/albums'])

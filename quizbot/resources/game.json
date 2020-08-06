@@ -1,0 +1,7 @@
+{
+    "scoreIncrement": 1,
+    "giveUpScoreMultiplier": 2,
+    "sqCooldownTurns": 5,
+    "rwaCooldownTurns": 5,
+    "rwaAnswersCount": 2
+}

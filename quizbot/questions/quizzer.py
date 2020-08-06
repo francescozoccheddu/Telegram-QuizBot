@@ -26,7 +26,7 @@ def _registerQuestion(question):
     _questionsByTopic[question.topic] = topic
 
 
-_config = resources.json('config.json')
+_config = resources.json('quizzer.json')
 
 
 def answersCount():
