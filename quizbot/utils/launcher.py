@@ -1,5 +1,40 @@
+_usersFile = None
+
+
+def _loadConfig():
+    global _usersFile
+    if _usersFile is None:
+        from . import resources
+        _usersFile = resources.json('users.json')['dataFile']
+
+
+def setupChannelMap(load=True, output=True, outputFailures=True):
+    _loadConfig()
+    if output:
+        print('Loading game...')
+    from ..game.dispatcher.dispatcher import dispatcher
+    from ..questions import questions
+    from ..game import game
+    from ..utils import data
+    questions.load(output, outputFailures)
+    game.setQuiz(questions.quiz())
+    channels = data.loadOr(_usersFile) if load else None
+    if channels is None:
+        from ..chat import chat
+        channels = chat.ChannelMap()
+    channels.dispatcher = dispatcher()
+    return channels
+
+
+def saveChannelMap(channelMap):
+    _loadConfig()
+    from ..utils import data
+    data.store(_usersFile, channelMap)
+
 
 def fromcli(args):
+
+    # Parse args
     import argparse
     parser = argparse.ArgumentParser(description='QuizBot Telegram bot.')
     parser.add_argument('--cli', metavar='USER', type=str,
@@ -21,34 +56,41 @@ def fromcli(args):
     if (pargs.dont_load or pargs.dont_store) and (pargs.clear_usr is not None or pargs.list_usr is not None):
         parser.error('Cannot specify --dont_load or --dont_store arguments when --clear_usr or --list_usr are specified')
 
-    from .. import chat
-    if not pargs.dont_load and not pargs.dont_store:
-        chat.users.load()
+    channels = setupChannelMap(not pargs.dont_load)
+
+    # Do chat
     try:
         if pargs.cli:
-            from ..interfaces import cli
-            interface = cli
+            from ..chat.terminals import cli
+            terminal = cli
+            channel = channels['cli']
         else:
-            from ..interfaces import telegram
-            interface = telegram
+            from ..chat.terminals import telegram
+            terminal = telegram
+            channel = channels['telegram']
         if pargs.clear_usr is not None:
             if isinstance(pargs.clear_usr, str):
-                print(int(chat.users.remove(interface.channel(), pargs.clear_usr)))
+                stopped = channel[pargs.clear_usr].stopChat()
+                print(int(stopped))
             else:
-                print(chat.users.clearChannel(interface.channel()))
+                users = channel.chattingUsers
+                for u in users:
+                    u.stopChat()
+                print(len(users))
         elif pargs.list_usr is not None:
             if isinstance(pargs.list_usr, str):
-                print(int(chat.users.exists(interface.channel(), pargs.list_usr)))
+                chatting = channel[pargs.list_usr].isChatting
+                print(int(chatting))
             else:
-                for k in chat.users.channelKeys(interface.channel()):
-                    print(k)
+                for u in channel.chattingUsers:
+                    print(u.key)
         else:
             args = [pargs.cli] if isinstance(pargs.cli, str) else []
-            interface.start(*args)
+            terminal.start(channel, *args)
     finally:
         pass
-    if not pargs.dont_load and not pargs.dont_store and pargs.list_usr is None:
-        chat.users.store()
+
+    saveChannelMap(channels)
 
 
 def main():

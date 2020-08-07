@@ -1,17 +1,15 @@
-from ..quizzer import answersCount
-from ..question import question
+from ..questions import question, answersCount
 import random
 from .. import utils
 
 
-
-@question('music', 0, ['music/albums'])
+@question('music', ['music/albums'])
 def whatYearByAlbum(als):
     album, artist, year = als.sample(1).iloc[0][['album', 'artist', 'year']]
     return f'When was "{album}" by {artist} pubblicated?', tuple(str(y) for y in utils.years(year))
 
 
-@question('music', 0, ['music/albums'])
+@question('music', ['music/albums'])
 def whatAlbumByYear(als):
     right = als.sample(1)
     year = right.year.iloc[0]
@@ -20,21 +18,21 @@ def whatAlbumByYear(als):
     return f'What album was pubblicated in {year}?', utils.format(right, wrong, '"{album}" by {artist}')
 
 
-@question('music', 0, ['music/albums', 'music/artists'])
+@question('music', ['music/albums', 'music/artists'])
 def whatArtistByAlbum(al, ar):
     album, artist, year = al.sample(1).iloc[0][['album', 'artist', 'year']]
     wrongArtists = ar[ar.artist != artist].sample(answersCount() - 1).artist
     return f'Who performed the album "{album}" in {year}?', (artist, *wrongArtists)
 
 
-@question('music', 0, ['music/albums'])
+@question('music', ['music/albums'])
 def whatAlbumByArtist(a):
     album, artist, year = a.sample(1).iloc[0][['album', 'artist', 'year']]
     wrongAlbums = a[a.artist != artist].sample(answersCount() - 1).album
     return f'What album was made by {artist} in {year}?', (album, *wrongAlbums)
 
 
-@question('music', 0, ['music/albums', 'music/artists'])
+@question('music', ['music/albums', 'music/artists'])
 def whatArtistBySong(al, ar):
     songs, artist, year = al.sample(1).iloc[0][['songs', 'artist', 'year']]
     song = random.choice(songs)
@@ -42,7 +40,7 @@ def whatArtistBySong(al, ar):
     return f'Who performed the song "{song}" in {year}?', (artist, *wrongArtists)
 
 
-@question('music', 0, ['music/albums'])
+@question('music', ['music/albums'])
 def whatAlbumBySong(a):
     right = a.sample(1)
     songs, album, year = right.iloc[0][['songs', 'album', 'year']]

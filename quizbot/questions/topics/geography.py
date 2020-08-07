@@ -1,5 +1,4 @@
-from ..quizzer import answersCount
-from ..question import question
+from ..questions import question, answersCount
 import random
 from .. import utils
 
@@ -29,7 +28,7 @@ def _farSampleBy(countries, by, exponent):
     return countries.iloc[utils.farSample(by, lambda d: d**exponent).index]
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCapitalByCountry(cts):
     right = cts.sample(1).iloc[0]
     country, capital, cities = right[['country', 'capital', 'cities']]
@@ -40,7 +39,7 @@ def whichCapitalByCountry(cts):
     return f'What is the capital of {country}?', collector.answers
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCountryByCapital(cts):
     right = cts.sample(1).iloc[0]
     country, capital = right[['country', 'capital']]
@@ -50,7 +49,7 @@ def whichCountryByCapital(cts):
     return f'What country is {capital} the capital of?', collector.answers
 
 
-@question("geography", datasets=["geography/countries", "geography/languages"])
+@question("geography", ["geography/countries", "geography/languages"])
 def whichLanguageByCountry(cts, lgs):
     country, languages = cts.sample(1).iloc[0][['country', 'languages']]
     collector = utils.Collector(languages)
@@ -58,7 +57,7 @@ def whichLanguageByCountry(cts, lgs):
     return f'What is the official language of {country}?', collector.answers
 
 
-@question("geography", datasets=["geography/countries", "geography/currencies"])
+@question("geography", ["geography/countries", "geography/currencies"])
 def whichCurrencyByCountry(cts, ccs):
     country, currencies = cts.sample(1).iloc[0][['country', 'currencies']]
     collector = utils.Collector(currencies)
@@ -66,7 +65,7 @@ def whichCurrencyByCountry(cts, ccs):
     return f'What is the official currency of {country}?', collector.answers
 
 
-@question("geography", datasets=["geography/countries", "geography/continents"])
+@question("geography", ["geography/countries", "geography/continents"])
 def whichContinentByCountry(cts, cns):
     country, continents = cts.sample(1).iloc[0][['country', 'continents']]
     collector = utils.Collector(continents)
@@ -74,7 +73,7 @@ def whichContinentByCountry(cts, cns):
     return f'What is the continent of {country}?', collector.answers
 
 
-@question("geography", datasets=["geography/countries", "geography/continents"])
+@question("geography", ["geography/countries", "geography/continents"])
 def whichCountryInContinent(cts, cns):
     continent = cns[cns.hasCountries].sample(1).iloc[0].continent
     country = cts[cts.continents.apply(lambda c: c == [continent])].sample(1).iloc[0].country
@@ -83,7 +82,7 @@ def whichCountryInContinent(cts, cns):
     return f'What country is in {continent}?', collector.answers
 
 
-@question("geography", datasets=["geography/countries", "geography/continents"])
+@question("geography", ["geography/countries", "geography/continents"])
 def whichCountryNotInContinent(cts, cns):
     continent = cns[cns.hasCountries].sample(1).iloc[0].continent
     country = cts[cts.continents.apply(lambda c: continent not in c)].sample(1).iloc[0].country
@@ -92,7 +91,7 @@ def whichCountryNotInContinent(cts, cns):
     return f'What country is not part of {continent}?', collector.answers
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCountryByCity(cts):
     right = cts.sample(1).iloc[0]
     country, cities = right[['country', 'cities']]
@@ -101,50 +100,50 @@ def whichCountryByCity(cts):
     return f'What country is {random.choice(cities)} in?', collector.answers
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCountryByPopulation(cts):
     sample = _farSampleBy(cts, 'population', 0.1)
     population = _humanizePopulation(sample.iloc[0].population)
     return f'What country has population {population}?', tuple(sample.country)
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCountryWithGreatestPopulation(cts):
     sample = _farSampleBy(cts, 'population', 0.1).sort_values('population', ascending=False)
     return f'What country is more populated?', tuple(sample.country)
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCountryWithSmallestPopulation(cts):
     sample = _farSampleBy(cts, 'population', 0.1).sort_values('population', ascending=True)
     return f'What country is less populated?', tuple(sample.country)
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCountryWithLargestArea(cts):
     sample = _farSampleBy(cts, 'area', 0.1).sort_values('area', ascending=False)
     return f'What country is largest?', tuple(sample.country)
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCountryWithSmallestArea(cts):
     sample = _farSampleBy(cts, 'area', 0.1).sort_values('area', ascending=True)
     return f'What country is smallest?', tuple(sample.country)
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCountryIsRicher(cts):
     sample = _farSampleBy(cts, 'gdp', 0.1).sort_values('gdp', ascending=False)
     return f'What country is richer?', tuple(sample.country)
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whichCountryIsPoorer(cts):
     sample = _farSampleBy(cts, 'gdp', 0.1).sort_values('gdp', ascending=True)
     return f'What country is poorer?', tuple(sample.country)
 
 
-@question("geography", datasets=["geography/countries"])
+@question("geography", ["geography/countries"])
 def whoSharesBorderWithCountry(cts):
     right = cts.sample(1).iloc[0]
     country, borders = right[['country', 'borders']]

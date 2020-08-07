@@ -1,4 +1,4 @@
-from . import utils as ut
+from ...utils import nlg
 
 
 def score(user, allowWhenNotPlaying=False):
@@ -41,7 +41,7 @@ def lifelines(user):
         if g.canDoRwa:
             from ..game import rwaAnswersCount
             k = rwaAnswersCount()
-            msg += f'remove {ut.cardinal(k)} wrong answer{ut.plural(k)}'
+            msg += f'remove {nlg.card(k)} wrong answer{nlg.plur(k)}'
         if g.canDoSq:
             if g.canDoRwa:
                 msg += ' or '

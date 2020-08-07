@@ -1,4 +1,3 @@
-from ...chat.dispatcher import intent
 from ..actions import base, lifelines, confirm
 from . import utils
 from autocorrect import Speller
@@ -6,12 +5,10 @@ from autocorrect import Speller
 _speller = Speller()
 
 
-@intent
 def fallback(user, message):
     return 0.5, base.didntUnderstandAction
 
 
-@intent
 def giveUp(user, message):
     verbSyns = ['quit', 'stop', 'abandon', 'surrender', 'leave', 'give up']
     tlss = utils.tagAndLemmatizeSentences(_speller(message).lower(), [('give', 'up')])
@@ -22,7 +19,6 @@ def giveUp(user, message):
     return confidence, base.giveUp
 
 
-@intent
 def switchQuestion(user, message):
     verbSyns = ['change', 'switch', 'replace', 'swap']
     nounSyns = ['question', 'quiz']
@@ -41,7 +37,6 @@ def switchQuestion(user, message):
     return confidence, lifelines.doSq
 
 
-@intent
 def removeTwoWrongQuestions(user, message):
     verbSyns = ['remove', 'delete', 'hide']
     nounSyns = ['answer', 'response']
@@ -60,7 +55,6 @@ def removeTwoWrongQuestions(user, message):
     return confidence, lifelines.doRwa
 
 
-@intent
 def hint(user, message):
     nounSyns = ['help', 'hint', 'aid']
     tlss = utils.tagAndLemmatizeSentences(_speller(message).lower())
@@ -69,7 +63,6 @@ def hint(user, message):
     return confidence, lifelines.doRwa
 
 
-@intent
 def startGame(user, message):
     verbSyns = ['start', 'begin', 'play']
     nounSyns = ['quiz', 'match', 'game', 'play']
@@ -92,7 +85,6 @@ _yesNoIgnoreWords = {'i', 'i\'m', 'am', 'please', 'do'}
 _yesNoIgnoreBow = utils.constantCostBow(_yesNoIgnoreWords, 0)
 
 
-@intent
 def yes(user, message):
     confidence = utils.bowSimilarity(_speller(message), {
         'yes': 1,
@@ -106,7 +98,6 @@ def yes(user, message):
     return confidence, confirm.yesNo, True
 
 
-@intent
 def no(user, message):
     confidence = utils.bowSimilarity(_speller(message), {
         'yes': -2,
@@ -129,7 +120,6 @@ _fourthAnswerWords = {'fourth', '4th', 'four', '4'}
 _answerWords = [_firstAnswerWords, _secondAnswerWords, _thirdAnswerWords, _fourthAnswerWords]
 
 
-@intent
 def answerByIndex(user, message):
     tlss = utils.tagAndLemmatizeSentences(_speller(message))
     confidence, index = 0, 0

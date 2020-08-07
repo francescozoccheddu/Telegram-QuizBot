@@ -1,6 +1,3 @@
-from .. import chat
-
-_channel = 'clichat'
 _defaultKey = "_clichat_default_key"
 
 
@@ -8,18 +5,17 @@ def defaultKey():
     return _defaultKey
 
 
-@chat.onBotMessage(_channel)
-def _onBotMessage(key, message):
+def _onBotMessage(ck, uk, message):
     print(f'B: {message}')
 
 
-def start(key=_defaultKey):
-    from .. import game
-    game.readyWithUI()
+def start(channel, key=_defaultKey):
+    oldHandler = channel.onBotMessage
+    channel.onBotMessage = _onBotMessage
     print(f'C: CLIChat started.')
-    if not chat.users.exists(_channel, key):
+    if not channel[key].isChatting:
         print(f'C: User added.')
-        chat.users.add(_channel, key)
+        channel[key].startChat()
     try:
         while True:
             print('Y: ', end='')
@@ -28,10 +24,9 @@ def start(key=_defaultKey):
             except KeyboardInterrupt:
                 print()
                 raise
-            chat.users.userMessage(_channel, key, message)
+            channel[key].userMessage(message)
     except KeyboardInterrupt:
         print(f'C: CLIChat closed by user.')
+    channel.onBotMessage = oldHandler
 
 
-def channel():
-    return _channel

@@ -49,7 +49,7 @@ def loadCache(filename):
     return _load(_path(filename, True))
 
 
-def loadCacheOr(filename, default):
+def loadCacheOr(filename, default=None):
     loaded, data = loadCache(filename)
     return data if loaded else default
 
@@ -66,7 +66,7 @@ def load(filename):
     return _load(_path(filename, False))
 
 
-def loadOr(filename, default):
+def loadOr(filename, default=None):
     loaded, data = load(filename)
     return data if loaded else default
 

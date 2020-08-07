@@ -1,26 +1,44 @@
 from ..utils import resources
 
-_config = resources.json('game.json')
+_config = None
+_quiz = None
+
+
+def _loadConfig():
+    global _config
+    if _config is None:
+        from ..utils import resources
+        _config = resources.json('game.json')
 
 
 def scoreIncrement():
+    _loadConfig()
     return _config['scoreIncrement']
 
 
 def giveUpScoreMultiplier():
+    _loadConfig()
     return _config['giveUpScoreMultiplier']
 
 
 def sqCooldownTurns():
+    _loadConfig()
     return _config['sqCooldownTurns']
 
 
 def rwaCooldownTurns():
+    _loadConfig()
     return _config['rwaCooldownTurns']
 
 
 def rwaAnswersCount():
+    _loadConfig()
     return _config['rwaAnswersCount']
+
+
+def setQuiz(quiz):
+    global _quiz
+    _quiz = quiz
 
 
 class Game:
@@ -116,9 +134,10 @@ class Game:
     def _newQuestion(self):
         if not self._playing:
             raise Exception('Not playing')
-        from ..questions import quizzer
+        if _quiz is None:
+            raise Exception('No quiz set')
         import random
-        question, answers = quizzer.randomQuestion()()
+        question, answers = _quiz.randomQuestion()(_quiz.datasets)
         rightAnswer = answers[0]
         answers = list(answers)
         random.shuffle(answers)
