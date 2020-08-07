@@ -1,40 +1,51 @@
-_usersFile = None
+_config = None
 
 
 def _loadConfig():
-    global _usersFile
-    if _usersFile is None:
+    global _config
+    if _config is None:
         from . import resources
-        _usersFile = resources.json('users.json')['dataFile']
+        _config = resources.json('launcher.json')
 
 
-def setupChannelMap(load=True, output=True, outputFailures=True):
+def loadExchange():
     _loadConfig()
-    if output:
-        print('Loading game...')
+    from ..utils import data
+    exchange = data.loadOr(_config['exchangeFile'])
+    if exchange is None:
+        from ..chat import chat
+        exchange = chat.Exchange()
+    return exchange
+
+
+def loadDispatcher(output=True, outputFailures=True):
     from ..game.dispatcher.dispatcher import dispatcher
     from ..questions import questions
-    from ..game import game
-    from ..utils import data
     questions.load(output, outputFailures)
-    game.setQuiz(questions.quiz())
-    channels = data.loadOr(_usersFile) if load else None
-    if channels is None:
-        from ..chat import chat
-        channels = chat.ChannelMap()
-    channels.dispatcher = dispatcher()
-    return channels
+    return dispatcher()
 
 
-def saveChannelMap(channelMap):
+def loadExchangeAndDispatcher(loadEx=True, loadDisp=True, output=True, outputFailures=True):
+    if output:
+        print('Loading game...')
+    from ..chat.chat import Exchange
+    exchange = loadExchange() if loadEx else Exchange()
+    if loadDisp:
+        from ..game import game
+        from ..questions import questions
+        exchange.dispatcher = loadDispatcher(output, outputFailures)
+        game.setQuiz(questions.quiz())
+    return exchange
+
+
+def saveExchange(exchange):
     _loadConfig()
     from ..utils import data
-    data.store(_usersFile, channelMap)
+    data.store(_config['exchangeFile'], exchange)
 
 
-def fromcli(args):
+def fromCli(args):
 
-    # Parse args
     import argparse
     parser = argparse.ArgumentParser(description='QuizBot Telegram bot.')
     parser.add_argument('--cli', metavar='USER', type=str,
@@ -49,25 +60,25 @@ def fromcli(args):
                              help='Check whether <USER> exists or list all the users if unspecified')
     dataGroup = parser.add_mutually_exclusive_group()
     dataGroup.add_argument('--dont_load', action='store_true', help='Don\'t load or store any user data')
-    dataGroup.add_argument('--dont_store', action='store_true', help='Don\' store any user data on exit')
+    dataGroup.add_argument('--dont_save', action='store_true', help='Don\' store any user data on exit')
     pargs = parser.parse_args()
-    if isinstance(pargs.cli, str) and (pargs.clear_usr is not None or pargs.list_usr is not None):
+    adminAction = pargs.clear_usr is not None or pargs.list_usr is not None
+    if isinstance(pargs.cli, str) and adminAction:
         parser.error('Cannot specify <USER> in --cli argument when --clear_usr or --list_usr are specified')
-    if (pargs.dont_load or pargs.dont_store) and (pargs.clear_usr is not None or pargs.list_usr is not None):
-        parser.error('Cannot specify --dont_load or --dont_store arguments when --clear_usr or --list_usr are specified')
+    if (pargs.dont_load or pargs.dont_save) and adminAction:
+        parser.error('Cannot specify --dont_load or --dont_save arguments when --clear_usr or --list_usr are specified')
 
-    channels = setupChannelMap(not pargs.dont_load)
+    exchange = loadExchangeAndDispatcher(not pargs.dont_load, not adminAction, not adminAction, not adminAction)
 
-    # Do chat
     try:
         if pargs.cli:
             from ..chat.terminals import cli
             terminal = cli
-            channel = channels['cli']
+            channel = exchange['cli']
         else:
             from ..chat.terminals import telegram
             terminal = telegram
-            channel = channels['telegram']
+            channel = exchange['telegram']
         if pargs.clear_usr is not None:
             if isinstance(pargs.clear_usr, str):
                 stopped = channel[pargs.clear_usr].stopChat()
@@ -90,12 +101,13 @@ def fromcli(args):
     finally:
         pass
 
-    saveChannelMap(channels)
+    if not pargs.dont_load and not pargs.dont_save and pargs.list_usr is None:
+        saveExchange(exchange)
 
 
 def main():
     import sys
-    fromcli(sys.argv)
+    fromCli(sys.argv)
 
 
 if __name__ == "__main__":

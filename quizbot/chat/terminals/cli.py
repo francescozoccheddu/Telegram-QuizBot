@@ -28,5 +28,3 @@ def start(channel, key=_defaultKey):
     except KeyboardInterrupt:
         print(f'C: CLIChat closed by user.')
     channel.onBotMessage = oldHandler
-
-

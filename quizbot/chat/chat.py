@@ -36,33 +36,39 @@ class UserView:
 
     @property
     def isChatting(self):
-        channels = self._channel._map._channels
+        channels = self._channel._exchange._channels
         return self._key in channels.get(self.channelKey, {})
 
     def startChat(self, raiseIfStarted=False):
-        channelMap = self._channel._map
-        channels = channelMap._channels
+        exchange = self._channel._exchange
+        channels = exchange._channels
         users = channels.get(self.channelKey)
         if users is None:
             channels[self.channelKey] = users = {}
         if self._key not in users:
             view = UserDispatcherView()
-            channelMap.dispatcher.onUserCreated(view)
+            exchange.dispatcher.onUserCreated(view)
             users[self._key] = view.data
             for message in view.messages:
                 self._channel.onBotMessage(self.channelKey, self._key, message)
+            return True
         elif raiseIfStarted:
             raise Exception('Already started')
+        else:
+            return False
 
     def stopChat(self, raiseIfNotStarted=False):
-        channels = self._channel._map._channels
+        channels = self._channel._exchange._channels
         users = channels.get(self.channelKey)
         if users is not None and self._key in users:
             del users[self._key]
             if len(users) == 0:
                 del channels[self.channelKey]
+            return True
         elif raiseIfNotStarted:
             raise Exception('Not started')
+        else:
+            return False
 
     def userMessage(self, message, raiseIfNotStarted=False, startIfNotStarted=False):
         if not self.isChatting:
@@ -71,21 +77,22 @@ class UserView:
             if startIfNotStarted:
                 self.startChat()
             else:
-                return
-        channelMap = self._channel._map
-        users = channelMap._channels[self.channelKey]
+                return False
+        exchange = self._channel._exchange
+        users = exchange._channels[self.channelKey]
         view = UserDispatcherView(users[self._key])
-        channelMap.dispatcher.onUserMessage(view, message)
+        exchange.dispatcher.onUserMessage(view, message)
         users[self._key] = view.data
         for message in view.messages:
             self._channel.onBotMessage(self.channelKey, self._key, message)
+        return True
 
 
 class ChannelView:
 
-    def __init__(self, key, channelMap):
+    def __init__(self, key, exchange):
         self._key = key
-        self._map = channelMap
+        self._exchange = exchange
 
     @property
     def key(self):
@@ -96,21 +103,21 @@ class ChannelView:
 
     @property
     def chattingUsers(self):
-        return [UserView(k, self) for k in self._map._channels.get(self._key, {})]
+        return [UserView(k, self) for k in self._exchange._channels.get(self._key, {})]
 
     @property
     def onBotMessage(self):
-        return self._map._channelMessageHandlers.get(self._key, None)
+        return self._exchange._channelMessageHandlers.get(self._key, None)
 
     @onBotMessage.setter
     def onBotMessage(self, value):
         if value is not None:
-            self._map._channelMessageHandlers[self._key] = value
+            self._exchange._channelMessageHandlers[self._key] = value
         else:
-            del self._map._channelMessageHandlers[self._key]
+            del self._exchange._channelMessageHandlers[self._key]
 
 
-class ChannelMap:
+class Exchange:
 
     def __init__(self):
         self._channels = {}
@@ -139,6 +146,8 @@ class ChannelMap:
 
     def __setstate__(self, state):
         self._channels = state
+        self._channelMessageHandlers = {}
+        self._dispatcher = Dispatcher()
 
 
 class Dispatcher:

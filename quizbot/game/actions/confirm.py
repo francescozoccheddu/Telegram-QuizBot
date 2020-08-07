@@ -23,3 +23,11 @@ def yesNo(user, positive):
         from .base import didntUnderstandAction
         didntUnderstandAction(user)
     g.resetYesNoAction()
+
+
+def reinforce(user, action, answerActionIndex=None):
+    g = user.data
+    if g.yesNoAction == action and g.yesNoAnswerActionIndex == answerActionIndex:
+        yesNo(user, True)
+    else:
+        g.resetYesNoAction()
