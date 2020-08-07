@@ -1,4 +1,4 @@
-from ..chat import chat
+from .. import chat
 
 _channel = "telegram"
 

@@ -30,7 +30,7 @@ def question(user):
     g = user.data
     msg = g.question
     for i, a in enumerate(g.answers):
-        msg += f'\n{i + 1}) {a.rstrip(".")}' + (';' if i == len(g.answers) - 1 else '.')
+        msg += f'\n{i + 1}) {a.rstrip(".")}' + (';' if i < len(g.answers) - 1 else '.')
     user.send(msg)
 
 

@@ -32,8 +32,8 @@ class Game:
         self._endGame()
 
     def _endGame(self):
+        self._oldRecordScore = self._recordScore
         if self._recordScore is None or self._score > self._recordScore:
-            self._oldRecordScore = self._recordScore
             self._recordScore = self._score
         self._question = None
         self._answers = None

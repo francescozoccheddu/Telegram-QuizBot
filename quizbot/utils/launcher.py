@@ -21,7 +21,7 @@ def fromcli(args):
     if (pargs.dont_load or pargs.dont_store) and (pargs.clear_usr is not None or pargs.list_usr is not None):
         parser.error('Cannot specify --dont_load or --dont_store arguments when --clear_usr or --list_usr are specified')
 
-    from ..chat import chat
+    from .. import chat
     if not pargs.dont_load and not pargs.dont_store:
         chat.users.load()
     try:
