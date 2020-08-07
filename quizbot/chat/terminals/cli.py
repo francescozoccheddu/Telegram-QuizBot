@@ -10,12 +10,18 @@ def _onBotMessage(ck, uk, message):
 
 
 def start(channel, key=_defaultKey):
+
+    # Set callback
     oldHandler = channel.onBotMessage
     channel.onBotMessage = _onBotMessage
+
+    # Start
     print(f'C: CLIChat started.')
     if not channel[key].isChatting:
         print(f'C: User added.')
         channel[key].startChat()
+    
+    # Loop
     try:
         while True:
             print('Y: ', end='')
@@ -27,4 +33,6 @@ def start(channel, key=_defaultKey):
             channel[key].userMessage(message)
     except KeyboardInterrupt:
         print(f'C: CLIChat closed by user.')
+
+    # Restore callback
     channel.onBotMessage = oldHandler
