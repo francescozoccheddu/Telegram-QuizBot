@@ -8,7 +8,7 @@ def _loadStrings():
     global _strings
     if _strings is None:
         from ..utils import strings
-        _strings = strings.fromResource('questionStrings.json')
+        _strings = strings.fromResource('strings/questions.json')
 
 
 def _around(right, rrange, min=None, max=None):

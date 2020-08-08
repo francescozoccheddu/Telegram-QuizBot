@@ -1,5 +1,5 @@
 {
     "answersCount": 4,
-    "datasetsFile": "?datasets/datasets.json",
+    "datasetsFile": "?../datasets/datasets.json",
     "datasetsCacheFile": "datasets"
 }

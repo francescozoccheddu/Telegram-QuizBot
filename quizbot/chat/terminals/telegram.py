@@ -1,21 +1,14 @@
+from ...utils.resources import Config
 
-_config = None
-
-
-def _loadConfig():
-    global _config
-    if _config is None:
-        from ...utils import resources
-        _config = resources.json('telegram.json')
+_config = Config('configs/telegram.json')
 
 
 def start(channel):
-    _loadConfig()
 
     # Set callbacks
     oldHandler = channel.onBotMessage
     from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-    updater = Updater(token=_config['token'], use_context=True)
+    updater = Updater(token=_config.token, use_context=True)
 
     def onBotMessage(ck, uk, message):
         updater.bot.send_message(uk, message)
@@ -38,6 +31,6 @@ def start(channel):
     print('Running...')
     updater.start_polling()
     updater.idle()
-    
+
     # Restore callbacks
     channel.onBotMessage = oldHandler

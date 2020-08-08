@@ -1,39 +1,11 @@
-from ..utils import resources
+from ..utils.resources import Config
 
-_config = None
+_config = Config('configs/game.json')
 _quiz = None
 
 
-def _loadConfig():
-    global _config
-    if _config is None:
-        from ..utils import resources
-        _config = resources.json('game.json')
-
-
-def scoreIncrement():
-    _loadConfig()
-    return _config['scoreIncrement']
-
-
-def giveUpScoreMultiplier():
-    _loadConfig()
-    return _config['giveUpScoreMultiplier']
-
-
-def sqCooldownTurns():
-    _loadConfig()
-    return _config['sqCooldownTurns']
-
-
-def rwaCooldownTurns():
-    _loadConfig()
-    return _config['rwaCooldownTurns']
-
-
-def rwaAnswersCount():
-    _loadConfig()
-    return _config['rwaAnswersCount']
+def config():
+    return _config
 
 
 def setQuiz(quiz):
@@ -151,7 +123,7 @@ class Game:
     def giveUp(self):
         if not self._playing:
             raise Exception('Not playing')
-        self._score *= giveUpScoreMultiplier()
+        self._score *= _config.giveUpScoreMultiplier
         self._endGame()
 
     def doRwa(self):
@@ -160,8 +132,8 @@ class Game:
         if not self.canDoRwa:
             raise Exception('Cannot do rwa')
         import random
-        self._rwaIndices = tuple(random.sample(self.wrongAnwersIndices, rwaAnswersCount()))
-        self._rwaCooldown = rwaCooldownTurns()
+        self._rwaIndices = tuple(random.sample(self.wrongAnwersIndices, _config.rwaAnswersCount))
+        self._rwaCooldown = _config.rwaCooldownTurns
 
     def doSq(self):
         if not self._playing:
@@ -169,7 +141,7 @@ class Game:
         if not self.canDoSq:
             raise Exception('Cannot do sq')
         self._newQuestion()
-        self._sqCooldown = sqCooldownTurns()
+        self._sqCooldown = _config.sqCooldownTurns
 
     def answer(self, index):
         if not self._playing:
@@ -180,7 +152,7 @@ class Game:
             raise ValueError()
         right = index == self._rightAnswerIndex
         if right:
-            self._score += scoreIncrement()
+            self._score += _config.scoreIncrement
             self._newQuestion()
         else:
             self._endGame()

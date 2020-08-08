@@ -51,3 +51,16 @@ def json(filename, link=True):
     return data
 
 
+class Config:
+
+    def __init__(self, filename):
+        self._filename = filename
+        self._data = None
+
+    def __getitem__(self, key):
+        if self._data is None:
+            self._data = json(self._filename)
+        return self._data[key]
+
+    def __getattr__(self, name):
+        return self[name]

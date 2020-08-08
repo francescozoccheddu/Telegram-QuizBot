@@ -2,7 +2,7 @@ import os
 import appdirs
 from . import resources
 
-_appInfo = resources.json('app.json')
+_appInfo = resources.json('configs/app.json')
 _cachePath = appdirs.user_cache_dir(_appInfo['name'], _appInfo['author'])
 _dataPath = appdirs.user_data_dir(_appInfo['name'], _appInfo['author'])
 

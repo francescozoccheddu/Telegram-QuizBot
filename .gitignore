@@ -4,4 +4,4 @@ __pycache__
 *.egg-info
 quizbot/cache
 quizbot/data
-quizbot/resources/telegram.json
+quizbot/resources/configs/telegram.json

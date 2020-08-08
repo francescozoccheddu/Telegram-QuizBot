@@ -1,4 +1,4 @@
-from .utils import string as s
+from ..utils import string as s
 from ..chatgame import YesNoAction
 from .base import forceAnswer, forceGiveUp
 from .lifelines import forceDoRwa, forceDoSq
@@ -11,13 +11,18 @@ _actionMapping = {
 }
 
 
+def _confirm(user):
+    g = user.data
+    func = _actionMapping[g.yesNoAction]
+    args = (g.yesNoAnswerActionIndex,) if g.yesNoAnswerActionIndex is not None else ()
+    func(user, *args)
+
+
 def yesNo(user, positive):
     g = user.data
     if g.hasYesNoAction:
         if positive:
-            func = _actionMapping[g.yesNoAction]
-            args = (g.yesNoAnswerActionIndex,) if g.yesNoAnswerActionIndex is not None else ()
-            func(user, *args)
+            _confirm(user)
         else:
             user.send(s('cancelConfirm').f())
     else:
@@ -29,6 +34,8 @@ def yesNo(user, positive):
 def reinforce(user, action, answerActionIndex=None):
     g = user.data
     if g.yesNoAction == action and g.yesNoAnswerActionIndex == answerActionIndex:
-        yesNo(user, True)
+        _confirm(user)
+        return True
     else:
         g.resetYesNoAction()
+        return False

@@ -1,4 +1,4 @@
-from .utils import string as s
+from ..utils import string as s
 from ...utils import nlg
 
 
@@ -29,26 +29,32 @@ def recordScore(user):
 
 def question(user):
     g = user.data
-    msg = g.question
-    for i, a in enumerate(g.answers):
-        msg += f'\n{i + 1}) {a.rstrip(".")}' + (';' if i < len(g.answers) - 1 else '.')
-    user.send(msg)
+    if g.isPlaying:
+        msg = g.question
+        for i, a in enumerate(g.answers):
+            msg += f'\n{i + 1}) {a.rstrip(".")}' + (';' if i < len(g.answers) - 1 else '.')
+        user.send(msg)
+    else:
+        notPlaying(user)
 
 
 def lifelines(user):
     g = user.data
-    if g.canDoRwa or g.canDoSq:
-        parts = []
-        if g.canDoRwa:
-            from ..game import rwaAnswersCount
-            k = rwaAnswersCount()
-            parts.append(s('rwaDescriptionPart').p(k, ordinal=k))
-        if g.canDoSq:
-            parts.append(s('sqDescriptionPart').f())
-        lifelines = nlg.join(parts, s('lifelinesDescriptionConjunction').f())
-        user.send(s('lifelinesDescription').f(lifelines=lifelines))
+    if g.isPlaying:
+        if g.canDoRwa or g.canDoSq:
+            parts = []
+            if g.canDoRwa:
+                from ..game import rwaAnswersCount
+                k = rwaAnswersCount()
+                parts.append(s('rwaDescriptionPart').p(k, ordinal=k))
+            if g.canDoSq:
+                parts.append(s('sqDescriptionPart').f())
+            lifelines = nlg.join(parts, s('lifelinesDescriptionConjunction').f())
+            user.send(s('lifelinesDescription').f(lifelines=lifelines))
+        else:
+            user.send(s('noLifelinesDescription').f())
     else:
-        user.send(s('noLifelinesDescription').f())
+        notPlaying(user)
 
 
 def startMessage(user):

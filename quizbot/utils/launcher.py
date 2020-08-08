@@ -1,17 +1,11 @@
-_config = None
+from .resources import Config
 
-
-def _loadConfig():
-    global _config
-    if _config is None:
-        from . import resources
-        _config = resources.json('launcher.json')
+_config = Config('configs/launcher.json')
 
 
 def loadExchange():
-    _loadConfig()
-    from ..utils import data
-    exchange = data.loadOr(_config['exchangeFile'])
+    from . import data
+    exchange = data.loadOr(_config.exchangeFile)
     if exchange is None:
         from ..chat import chat
         exchange = chat.Exchange()
@@ -39,9 +33,8 @@ def loadExchangeAndDispatcher(loadEx=True, loadDisp=True, output=True, outputFai
 
 
 def saveExchange(exchange):
-    _loadConfig()
     from ..utils import data
-    data.store(_config['exchangeFile'], exchange)
+    data.store(_config.exchangeFile, exchange)
 
 
 def fromCli(args):
@@ -74,11 +67,11 @@ def fromCli(args):
         if pargs.cli:
             from ..chat.terminals import cli
             terminal = cli
-            channel = exchange['cli']
+            channel = exchange[_config.cliChannel]
         else:
             from ..chat.terminals import telegram
             terminal = telegram
-            channel = exchange['telegram']
+            channel = exchange[_config.telegramChannel]
         if pargs.clear_usr is not None:
             if isinstance(pargs.clear_usr, str):
                 stopped = channel[pargs.clear_usr].stopChat()

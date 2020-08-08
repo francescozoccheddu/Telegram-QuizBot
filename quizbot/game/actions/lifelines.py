@@ -1,47 +1,54 @@
-from .utils import string as s
+from ..utils import string as s
 from ...utils import nlg
+from ..chatgame import YesNoAction
+from . import remind
 
 
 def _doRwa(user, force):
     g = user.data
-    g.resetYesNoAction()
+    if force:
+        g.resetYesNoAction()
+    else:
+        from . import confirm
+        if confirm.reinforce(user, YesNoAction.DO_RWA):
+            return
     if g.isPlaying:
-        from ..game import rwaAnswersCount
-        k = rwaAnswersCount()
+        from ..game import config
+        k = config().rwaAnswersCount
         if g.canDoRwa:
             if force:
                 g.doRwa()
-                wrongCardinal = [nlg.card(i + 1) for i in g.rwaIndices]
-                cardinals = nlg.join(wrongCardinal, s('rwaHelpConjunction').f())
-                user.send(s('rwaHelpInvoked').p(len(wrongCardinal), answers=cardinals))
+                wrongOrdinal = [nlg.ord(i + 1) for i in g.rwaIndices]
+                ordinals = nlg.join(wrongOrdinal, s('rwaHelpConjunction').f())
+                user.send(s('rwaHelpInvoked').p(len(wrongOrdinal), answers=ordinals))
             else:
-                from ..chatgame import YesNoAction
-                from ..game import rwaCooldownTurns
                 g.setYesNoAction(YesNoAction.DO_RWA)
-                turns = rwaCooldownTurns()
+                turns = config().rwaCooldownTurns
                 user.send(s('askForRwaConfirm').p(k, answers=k))
                 user.send(s('lifelineCooldownWarning').p(turns, turns=turns))
         else:
             turns = g.rwaCooldown
-            user.send(s('lifelineCooldownWait').p(turns, turns=turns))
+            user.send(s('rwaCooldownWait').p(turns, turns=turns))
 
     else:
-        from . import remind
         remind.notPlaying(user)
 
 
 def _doSq(user, force):
     g = user.data
-    g.resetYesNoAction()
+    if force:
+        g.resetYesNoAction()
+    else:
+        from . import confirm
+        if confirm.reinforce(user, YesNoAction.DO_SQ):
+            return
     if g.isPlaying:
         if g.canDoSq:
             if force:
-                from . import remind
                 g.doSq()
                 user.send(s('sqHelpInvoked').f())
                 remind.question(user)
             else:
-                from ..chatgame import YesNoAction
                 from ..game import sqCooldownTurns
                 g.setYesNoAction(YesNoAction.DO_SQ)
                 turns = sqCooldownTurns()
@@ -49,9 +56,8 @@ def _doSq(user, force):
                 user.send(s('lifelineCooldownWarning').p(turns, turns=turns))
         else:
             turns = g.sqCooldown
-            user.send(s('lifelineCooldownWait').p(turns, turns=turns))
+            user.send(s('sqCooldownWait').p(turns, turns=turns))
     else:
-        from . import remind
         remind.notPlaying(user)
 
 

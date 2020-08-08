@@ -1,4 +1,4 @@
-from ..actions.utils import string as s
+from ..utils import string as s
 
 def chatStarted(user):
     from ..chatgame import ChatGame
