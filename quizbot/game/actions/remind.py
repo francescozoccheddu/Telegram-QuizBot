@@ -1,10 +1,11 @@
+from .utils import string as s
 from ...utils import nlg
 
 
 def score(user, allowWhenNotPlaying=False):
     g = user.data
     if g.isPlaying or allowWhenNotPlaying:
-        user.send(f'Your score is {g.score}.')
+        user.send(s('score').f(score=g.score))
     else:
         notPlaying(user)
 
@@ -13,17 +14,17 @@ def newRecordScore(user):
     g = user.data
     if g.oldRecordScore is not None and g.oldRecordScore > 0:
         if g.oldRecordScore != g.recordScore:
-            user.send('Congratulations! This is your new record!')
+            user.send(s('newRecord').f())
         else:
-            user.send(f'You record is {g.recordScore}.')
+            user.send(s('recordScore').f(score=g.recordScore))
 
 
 def recordScore(user):
     g = user.data
     if g.recordScore is not None and g.recordScore > 0:
-        user.send(f'Your record score is {g.recordScore}.')
+        user.send(s('recordScore').f(score=g.recordScore))
     else:
-        user.send('You don\'t have a record score yet.')
+        user.send(s('noRecord').f())
 
 
 def question(user):
@@ -37,24 +38,22 @@ def question(user):
 def lifelines(user):
     g = user.data
     if g.canDoRwa or g.canDoSq:
-        msg = 'You can '
+        parts = []
         if g.canDoRwa:
             from ..game import rwaAnswersCount
             k = rwaAnswersCount()
-            msg += f'remove {nlg.card(k)} wrong answer{nlg.plur(k)}'
+            parts.append(s('rwaDescriptionPart').p(k, ordinal=k))
         if g.canDoSq:
-            if g.canDoRwa:
-                msg += ' or '
-            msg += 'switch question'
-        msg += ', if you want.'
-        user.send(msg)
+            parts.append(s('sqDescriptionPart').f())
+        lifelines = nlg.join(parts, s('lifelinesDescriptionConjunction').f())
+        user.send(s('lifelinesDescription').f(lifelines=lifelines))
     else:
-        user.send('You have no more aids, but if you are in trouble you can give up to double your score.')
+        user.send(s('noLifelinesDescription').f())
 
 
 def startMessage(user):
-    user.send('Tell me when you want to start a new game.')
+    user.send(s('tellMeWhenToStart').f())
 
 
 def notPlaying(user):
-    user.send('You are not playing!')
+    user.send(s('notPlaying').f())

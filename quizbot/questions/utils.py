@@ -1,6 +1,15 @@
 from .questions import answersCount
 from collections.abc import Iterable
 
+_strings = None
+
+
+def _loadStrings():
+    global _strings
+    if _strings is None:
+        from ..utils import strings
+        _strings = strings.fromResource('questionStrings.json')
+
 
 def _around(right, rrange, min=None, max=None):
     if min is not None and max is not None:
@@ -18,6 +27,11 @@ def _around(right, rrange, min=None, max=None):
             y = right + last
         wrong.append(y)
     return (right, *wrong)
+
+
+def string(key):
+    _loadStrings()
+    return _strings[key]
 
 
 def dropDigits(value, digits):

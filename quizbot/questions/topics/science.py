@@ -13,16 +13,18 @@ def _similarityMap(target, offset=0):
 
 
 @question('science', ['science/chemicalElements'])
-def whichChemicalElementBySymbol(els):
+def chemicalElementBySymbol(els):
     name, symbol = els.sample(1).iloc[0]
     collector = utils.Collector(name)
     collector.add(els.name, weights=els.name.map(_similarityMap(symbol, 1 / 100)))
-    return f'What chemical element has symbol {symbol}?', collector.answers
+    question = utils.string('chemicalElementBySymbol').f(symbol=symbol)
+    return question, collector.answers
 
 
 @question('science', ['science/chemicalElements'])
-def whichSymbolByChemicalElement(els):
+def symbolByChemicalElement(els):
     name, symbol = els.sample(1).iloc[0]
     collector = utils.Collector(symbol)
     collector.add(els.symbol, weights=els.symbol.map(_similarityMap(name, 1 / 100)))
-    return f'What is the symbol of {name}?', collector.answers
+    question = utils.string('symbolByChemicalElement').f(element=name)
+    return question, collector.answers

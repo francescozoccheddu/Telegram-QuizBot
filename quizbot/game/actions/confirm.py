@@ -1,3 +1,4 @@
+from .utils import string as s
 from ..chatgame import YesNoAction
 from .base import forceAnswer, forceGiveUp
 from .lifelines import forceDoRwa, forceDoSq
@@ -18,7 +19,7 @@ def yesNo(user, positive):
             args = (g.yesNoAnswerActionIndex,) if g.yesNoAnswerActionIndex is not None else ()
             func(user, *args)
         else:
-            user.send('Ok, think about it.')
+            user.send(s('cancelConfirm').f())
     else:
         from .base import didntUnderstandAction
         didntUnderstandAction(user)
