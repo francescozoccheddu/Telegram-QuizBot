@@ -1,36 +1,36 @@
+from .resources import LazyJson
+
+_numbers = LazyJson('other/nlgNumbers.json')
+
+
+def _invOrdinals():
+    return dict(zip(_numbers.ordinals.values(), _numbers.ordinals.keys()))
+
+
+def _invCardinals():
+    return dict(zip(_numbers.cardinals.values(), _numbers.cardinals.keys()))
+
 
 def ord(number):
-    if isinstance(number, int) and 1 <= number <= 9:
-        return {
-            1: 'first',
-            2: 'second',
-            3: 'third',
-            4: 'fourth',
-            5: 'fifth',
-            6: 'sixth',
-            7: 'seventh',
-            8: 'eight',
-            9: 'ninth'
-        }[number]
+    if isinstance(number, int) and 1 <= number <= len(_numbers.ordinal):
+        return _numbers.ordinal[number - 1]
     else:
-        return f'{number}st'
+        return f'{number}{_numbers.ordinalSuffix}'
 
 
 def card(number):
-    if isinstance(number, int) and 1 <= number <= 9:
-        return {
-            1: 'one',
-            2: 'two',
-            3: 'three',
-            4: 'four',
-            5: 'five',
-            6: 'six',
-            7: 'seven',
-            8: 'eight',
-            9: 'nine'
-        }[number]
+    if isinstance(number, int) and 0 <= number < len(_numbers.cardinal):
+        return _numbers.cardinal[number]
     else:
-        return str(number)
+        return f'{number}'
+
+
+def invNum(word):
+    word = word.strip().lower()
+    if word.isdigit() or word.endswith(_numbers.ordinalSuffix) and word.replace(_numbers.ordinalSuffix, '').isdigit():
+        return int(word)
+    else:
+        return {**_invOrdinals(), **_invCardinals()}.get(word, None)
 
 
 def join(items, conjunction='and'):

@@ -1,7 +1,7 @@
-from ..utils.resources import Config
+from ..utils.resources import LazyJson
 from ..quiz.holder import Holder, makeAutoRegisteringDecorator
 
-_config = Config('configs/questions.json')
+_config = LazyJson('configs/questions.json')
 _quiz = Holder()
 _loaded = False
 

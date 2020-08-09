@@ -68,7 +68,7 @@ class LazyResource:
         return self._data
 
 
-class Config(LazyResource):
+class LazyJson(LazyResource):
 
     def __init__(self, filename):
         super().__init__(filename)

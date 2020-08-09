@@ -1,136 +1,129 @@
-from ..actions import base, lifelines, confirm
 from . import utils
-from autocorrect import Speller
+from ...utils.resources import LazyJson
 
-_speller = Speller()
-
-
-def fallback(user, message):
-    return 0.5, base.didntUnderstandAction
-
-
-def giveUp(user, message):
-    verbSyns = ['quit', 'stop', 'abandon', 'surrender', 'leave', 'give up']
-    tlss = utils.tagAndLemmatizeSentences(_speller(message).lower(), [('give', 'up')])
-    verbs = utils.withPOS(tlss, 'VB')
-    singletons = utils.singleWordSentences(tlss)
-    candidates = utils.withoutUselessVerbs(verbs + singletons)
-    confidence = utils.semanticSimilarity(candidates, verbSyns, utils.VERB, 0)
-    return confidence, base.giveUp
+_speller = None
+_nlp = None
+_matchers = None
+_actions = None
+_fallbackAction = None
+_answerActionKey = 'answer'
+_config = LazyJson('configs/gameIntents.json')
 
 
-def switchQuestion(user, message):
-    verbSyns = ['change', 'switch', 'replace', 'swap']
-    nounSyns = ['question', 'quiz']
-    adjectiveSyns = ['new', 'different']
-    determinantSyns = ['another']
-    tlss = utils.tagAndLemmatizeSentences(_speller(message).lower())
-    verbs = utils.withoutUselessVerbs(utils.withPOS(tlss, 'VB'))
-    nouns = utils.withPOS(tlss, 'NN')
-    adjectives = utils.withPOS(tlss, 'JJ')
-    determinants = utils.withPOS(tlss, 'DT')
-    verbSim = utils.semanticSimilarity(verbs, verbSyns, utils.VERB, 0.2)
-    nounSim = utils.semanticSimilarity(nouns, nounSyns, utils.NOUN, 0.2)
-    adjectiveSim = utils.semanticSimilarity(adjectives, adjectiveSyns, utils.ADJ, 0.2)
-    determinantSim = utils.semanticSimilarity(determinants, determinantSyns, None, 0.2)
-    confidence = utils.optimisticMean([verbSim, nounSim, max(adjectiveSim, determinantSim)], weights=[2, 1, 1])
-    return confidence, lifelines.doSq
+def _load():
+    import spacy
+    from spacy.matcher import Matcher
+    from ...utils import resources
+    from autocorrect import Speller
+    from ..actions import base, lifelines, confirm, remind
+    global _nlp, _matchers, _speller, _actions, _fallbackAction
+    _nlp = spacy.load(_config.spacyDataset)
+    _speller = Speller()
+    _matchers = {}
+    intents = resources.json('other/gameIntents.json')
+    for key, entries in intents.items():
+        _matchers[key] = matcher = Matcher(_nlp.vocab)
+        for entry in entries:
+            weight, pattern = entry
+            matcher.add(str(weight), [pattern])
+    _actions = {
+        'newGame': base.startNewGame,
+        'giveUp': base.giveUp,
+        'no': lambda u: confirm.yesNo(u, False),
+        'yes': lambda u: confirm.yesNo(u, True),
+        'score': remind.score,
+        'record': remind.recordScore,
+        'question': remind.question,
+        'lifelines': remind.lifelines,
+        'doRwa': lifelines.doRwa,
+        'doSq': lifelines.doSq,
+        _answerActionKey: base.answer
+    }
+    _fallbackAction = base.didntUnderstand
 
 
-def removeTwoWrongQuestions(user, message):
-    verbSyns = ['remove', 'delete', 'hide']
-    nounSyns = ['answer', 'response']
-    adjectiveSyns = ['wrong', 'incorrect']
-    numberSyns = ['two']
-    tlss = utils.tagAndLemmatizeSentences(_speller(message).lower())
-    verbs = utils.withoutUselessVerbs(utils.withPOS(tlss, 'VB'))
-    nouns = utils.withPOS(tlss, 'NN')
-    adjectives = utils.withPOS(tlss, 'JJ')
-    numbers = utils.withPOS(tlss, 'CD')
-    verbSim = utils.semanticSimilarity(verbs, verbSyns, utils.VERB, 0.2)
-    nounSim = utils.semanticSimilarity(nouns, nounSyns, utils.NOUN, 0.2)
-    adjectiveSim = utils.semanticSimilarity(adjectives, adjectiveSyns, utils.ADJ, 0.2)
-    numberSim = utils.semanticSimilarity(numbers, numberSyns, None, 0.2)
-    confidence = utils.optimisticMean([verbSim, nounSim, adjectiveSim, numberSim], weights=[3, 1, 2, 0.5])
-    return confidence, lifelines.doRwa
+_load()
 
 
-def hint(user, message):
-    nounSyns = ['help', 'hint', 'aid']
-    tlss = utils.tagAndLemmatizeSentences(_speller(message).lower())
-    nouns = utils.withPOS(tlss, 'NN')
-    confidence = utils.semanticSimilarity(nouns, nounSyns, utils.NOUN, 0)
-    return confidence, lifelines.doRwa
+def _extractAnswerIndex(userData, doc):
+    g = userData
+    if g.isPlaying:
+        answersCount = len(g.answers)
+        candidate = None
+        for t in doc:
+            if t.pos == 'NUM':
+                from ...utils import nlg
+                number = nlg.invNum(t.text)
+                if number is not None:
+                    index = number - 1
+                    if index < answersCount:
+                        if candidate is None or candidate == index:
+                            candidate = index
+                        else:
+                            return None
+        return candidate if candidate is not None else None
+    else:
+        return None
 
 
-def startGame(user, message):
-    verbSyns = ['start', 'begin', 'play']
-    nounSyns = ['quiz', 'match', 'game', 'play']
-    adjectiveSyns = ['new']
-    determinantSyns = ['another']
-    tlss = utils.tagAndLemmatizeSentences(_speller(message).lower())
-    verbs = utils.withoutUselessVerbs(utils.withPOS(tlss, 'VB'))
-    nouns = utils.withPOS(tlss, 'NN')
-    adjectives = utils.withPOS(tlss, 'JJ')
-    determinants = utils.withPOS(tlss, 'DT')
-    verbSim = utils.semanticSimilarity(verbs, verbSyns, utils.VERB, 0.2)
-    nounSim = utils.semanticSimilarity(nouns, nounSyns, utils.NOUN, 0.2)
-    adjectiveSim = utils.semanticSimilarity(adjectives, adjectiveSyns, utils.ADJ, 0.2)
-    determinantSim = utils.semanticSimilarity(determinants, determinantSyns, None, 0.2)
-    confidence = utils.optimisticMean([verbSim, nounSim, max(adjectiveSim, determinantSim)], weights=[3, 2, 1])
-    return confidence, base.startNewGame
+def _getActionWeights(userData, validAnswerIndex=True):
+    g = userData
+    wp = _config.wrongPlayingStateWeight
+    uc = _config.unexpectedConfirmWeight
+    ul = _config.unavailableLifelineWeight
+    ia = _config.invalidAnswerIndexWeight
+    return {
+        'newGame': 1 if not g.isPlaying else wp,
+        'giveUp': 1 if g.isPlaying else wp,
+        'no': 1 if g.hasYesNoAction else uc,
+        'yes': 1 if g.hasYesNoAction else uc,
+        'question': 1 if g.isPlaying else wp,
+        'lifelines': 1 if g.isPlaying else wp,
+        'doRwa': 1 if g.canDoRwa else ul if g.isPlaying else wp,
+        'doSq': 1 if g.canDoSq else ul if g.isPlaying else wp,
+        _answerActionKey: 1 if validAnswerIndex else ia
+    }
 
 
-_yesNoIgnoreWords = {'i', 'i\'m', 'am', 'please', 'do'}
-_yesNoIgnoreBow = utils.constantCostBow(_yesNoIgnoreWords, 0)
+def _extractStaticMatcherAction(userData, doc):
+    weights = {}
+    answerIndex = _extractAnswerIndex(userData, doc)
+    contextWeights = _getActionWeights(userData, answerIndex is not None)
+    for key, matcher in _matchers.items():
+        matches = matcher(doc)
+        weight = 0
+        for matchId, _, _ in matches:
+            weight += float(_nlp.vocab.strings[matchId])
+        weights[key] = min(max(weight * contextWeights.get(key, 1), _config.minWeightSum), _config.maxWeightSum)
+    import pandas
+    data = pandas.DataFrame(list(weights.items()), columns=['key', 'weight'])
+    data = data.sort_values('weight', ascending=False)
+    bestKey = None
+    if len(data.index) > 0:
+        first = data.iloc[0].weight
+        second = data.iloc[1].weight if len(data.index) > 1 else 0
+        if first > _config.minChosenWeight and (second <= 0 or first / second >= _config.minMargin) and second <= _config.maxOtherWeight:
+            bestKey = data.iloc[0].key
+    if bestKey == _answerActionKey:
+        if answerIndex is None:
+            bestKey = None
+    return bestKey, answerIndex
 
 
-def yes(user, message):
-    confidence = utils.bowSimilarity(_speller(message), {
-        'yes': 1,
-        'sure': 1,
-        'ok': 1,
-        'no': -2,
-        'not': -2,
-        'n\'t': -2,
-        **_yesNoIgnoreBow
-    }, -0.3)
-    return confidence, confirm.yesNo, True
+def _extractDirectAnswerActionIndex(userData, doc):
+    # TODO
+    return None
 
 
-def no(user, message):
-    confidence = utils.bowSimilarity(_speller(message), {
-        'yes': -2,
-        'sure': -2,
-        'ok': -2,
-        'no': 1,
-        'not': 1,
-        'n\'t': 1,
-        **_yesNoIgnoreBow
-    }, -0.3)
-    return confidence, confirm.yesNo, False
-
-
-_cardinalAnswerIgnoreWords = {'i', 'i\'m', 'am', 'please', 'do', 'sure', 'choose', 'answer', 'one', 'choice', 'number'}
-_cardinalAnswerIgnoreBow = utils.constantCostBow(_cardinalAnswerIgnoreWords, 0)
-_firstAnswerWords = {'first', '1st', '1'}
-_secondAnswerWords = {'second', '2nd', 'two', '2'}
-_thirdAnswerWords = {'third', '3rd', 'three', '3'}
-_fourthAnswerWords = {'fourth', '4th', 'four', '4'}
-_answerWords = [_firstAnswerWords, _secondAnswerWords, _thirdAnswerWords, _fourthAnswerWords]
-
-
-def answerByIndex(user, message):
-    tlss = utils.tagAndLemmatizeSentences(_speller(message))
-    confidence, index = 0, 0
-    for i in range(len(_answerWords)):
-        s = utils.bowSimilarity(tlss, {
-            **utils.constantCostBow([w for a in _answerWords[:i] for w in a], -2),
-            **utils.constantCostBow(_answerWords[i], 1),
-            **utils.constantCostBow([w for a in _answerWords[i + 1:] for w in a], -2),
-            **_cardinalAnswerIgnoreBow
-        }, -0.3)
-        if s > confidence:
-            confidence = s
-            index = i
-    return confidence, base.answer, index
+def process(user, message):
+    if _config.autocorrect:
+        message = _speller(message)
+    doc = _nlp(message)
+    answerIndex = _extractDirectAnswerActionIndex(user.data, doc)
+    if answerIndex is None:
+        actionKey, answerIndex = _extractStaticMatcherAction(user.data, doc)
+    else:
+        actionKey = _answerActionKey
+    args = [answerIndex] if actionKey == _answerActionKey else []
+    action = _actions.get(actionKey, _fallbackAction)
+    action(user, *args)

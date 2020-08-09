@@ -1,6 +1,6 @@
-from ..utils.resources import Config
+from ..utils.resources import LazyJson
 
-_config = Config('configs/game.json')
+_config = LazyJson('configs/game.json')
 _quiz = None
 
 

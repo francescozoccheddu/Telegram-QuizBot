@@ -44,9 +44,9 @@ def lifelines(user):
         if g.canDoRwa or g.canDoSq:
             parts = []
             if g.canDoRwa:
-                from ..game import rwaAnswersCount
-                k = rwaAnswersCount()
-                parts.append(s('rwaDescriptionPart').p(k, ordinal=k))
+                from ..game import config
+                k = config().rwaAnswersCount
+                parts.append(s('rwaDescriptionPart').p(k, answers=nlg.card(k)))
             if g.canDoSq:
                 parts.append(s('sqDescriptionPart').s)
             lifelines = nlg.join(parts, s('lifelinesDescriptionConjunction').s)

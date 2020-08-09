@@ -5,13 +5,15 @@
     "rwaKnownWrongAnswer": "Ti ho già detto che questa non è la risposta corretta! Prova con un'altra.",
     "correctAnswer": "Risposta esatta!",
     "wrongAnswer": "Risposta sbagliata! La risposta corretta era \"{answer}\".",
+    "negativeAnswerIndex": "L'indice della risposta deve essere positivo.",
+    "answerIndexOverflow": "Ci sono solo {answers} risposte.",
     "askForAnswerConfirm": "\"{answer}\" è la tua risposta definitiva?",
     "gaveUp": "Ti sei arreso.",
     "askForGiveUpConfirm": "Sei sicuro di volerti arrendere?",
     "cancelConfirm": "Ok, pensaci con calma.",
     "rwaDescriptionPart": {
         "singular": "rimuovere una risposta scorretta",
-        "plural": "rimuovere {count} risposte scorrette"
+        "plural": "rimuovere {answers} risposte scorrette"
     },
     "sqDescriptionPart": "cambiare domanda",
     "lifelinesDescription": "Puoi {lifelines}, se sei in difficoltà.",

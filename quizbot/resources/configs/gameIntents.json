@@ -1,0 +1,13 @@
+{
+    "minMargin": 0.3,
+    "maxOtherWeight": 1,
+    "minWeightSum": -3,
+    "maxWeightSum": 3,
+    "minChosenWeight": 0.5,
+    "autocorrect": true,
+    "spacyDataset": "en_core_web_lg",
+    "wrongPlayingStateWeight": 0.5,
+    "unavailableLifelineWeight": 0.75,
+    "invalidAnswerIndexWeight": 0.25,
+    "unexpectedConfirmWeight": 0.25
+}

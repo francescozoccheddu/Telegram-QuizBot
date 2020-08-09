@@ -3,7 +3,7 @@ from . import remind
 from ..chatgame import YesNoAction
 
 
-def didntUnderstandAction(user):
+def didntUnderstand(user):
     g = user.data
     g.resetYesNoAction()
     user.send(s('didntUnderstand').s)
@@ -32,6 +32,10 @@ def _answer(user, answerIndex, force):
     if g.isPlaying:
         if answerIndex in g.rwaIndices:
             user.send(s('rwaKnownWrongAnswer').s)
+        elif answerIndex < 0:
+            user.send(s('negativeAnswerIndex').s)
+        elif answerIndex >= len(g.answers):
+            user.send(s('answerIndexOverflow').s)
         else:
             if force:
                 rightAnswer = g.rightAnswer

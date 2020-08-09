@@ -1,6 +1,6 @@
-from .resources import Config
+from .resources import LazyJson
 
-_config = Config('configs/launcher.json')
+_config = LazyJson('configs/launcher.json')
 
 
 def loadExchange():

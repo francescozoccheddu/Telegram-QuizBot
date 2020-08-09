@@ -3,7 +3,7 @@ python-telegram-bot
 pandas
 humanize
 tqdm
-nltk
 appdirs
 autocorrect
 textdistance
+spacy

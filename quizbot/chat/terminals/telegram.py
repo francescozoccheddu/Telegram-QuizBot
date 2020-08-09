@@ -1,6 +1,6 @@
-from ...utils.resources import Config
+from ...utils.resources import LazyJson
 
-_config = Config('configs/telegram.json')
+_config = LazyJson('configs/telegram.json')
 
 
 def start(channel):

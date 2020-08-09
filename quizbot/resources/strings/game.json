@@ -5,13 +5,15 @@
     "rwaKnownWrongAnswer": "I already told you that this is not the correct answers! Try with another one.",
     "correctAnswer": "Correct answer!",
     "wrongAnswer": "Wrong answer! The right one was \"{answer}\"",
+    "negativeAnswerIndex": "The answer index must be positive.",
+    "answerIndexOverflow": "There are only {answers} answers.",
     "askForAnswerConfirm": "Are you sure that your answer is \"{answer}\"?",
     "gaveUp": "You gave up.",
     "askForGiveUpConfirm": "Are you sure you want to give up?",
     "cancelConfirm": "Ok, think about it.",
     "rwaDescriptionPart": {
         "singular": "remove a wrong answer",
-        "plural": "remove {count} wrong answers"
+        "plural": "remove {answers} wrong answers"
     },
     "sqDescriptionPart": "switch the question",
     "lifelinesDescription": "You can {lifelines}, if you want.",
@@ -37,7 +39,7 @@
     },
     "sqCooldownWait": {
         "singular": "You have to wait another turn to switch the question again.",
-        "plural": "You have to wait for {turns} more turns to switch the question again."
+        "plural": "You have to wait {turns} more turns to switch the question again."
     },
     "sqHelpInvoked": "Here is another question.",
     "chatStarted": "Hi there!",

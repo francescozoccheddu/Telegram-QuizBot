@@ -1,0 +1,50 @@
+{
+    "newGame": [
+            [2, [{"POS": "VERB", "LEMMA": {"IN": ["start", "begin", "play"]}}]],
+            [1, [{"LEMMA": {"IN": ["new", "another"]}}]],
+            [1, [{"POS": "NOUN", "LEMMA": {"IN": ["game", "match", "quiz", "try", "round"]}}]]
+        ],
+    "giveUp": [
+            [1, [{"POS": "VERB", "LEMMA": {"IN": ["surrender", "stop", "quit", "exit"]}}]],
+            [2, [{"POS": "VERB", "LEMMA": "give"}, {"LEMMA": "up"}]]
+        ],
+    "answer": [
+            [1, [{"POS": "VERB", "LEMMA": {"IN": ["answer", "stop", "quit", "exit"]}}]],
+            [1, [{"POS": "NOUN", "LEMMA": {"IN": ["answer", "choice", "number", "one"]}}]],
+            [1, [{"POS": "NUM"}]]
+        ],
+    "no": [
+            [1, [{"LEMMA": {"IN": ["no", "not", "cancel"]}}]],
+            [-2, [{"LEMMA": {"IN": ["yes", "ok"]}}]]
+        ],
+    "yes": [
+            [1, [{"LEMMA": {"IN": ["yes", "sure", "ok"]}}]],
+            [-2, [{"LEMMA": {"IN": ["no", "not", "cancel"]}}]]
+        ],
+    "score": [
+            [1, [{"POS": "NOUN", "LEMMA": {"IN": ["score"]}}]],
+            [-2, [{"LEMMA": {"IN": ["record"]}}]]
+        ],
+    "record": [
+            [1, [{"LEMMA": {"IN": ["score", "high", "record", "best"]}}]]
+        ],
+    "question": [
+            [1, [{"LEMMA": {"IN": ["question", "answer"]}}]],
+            [1, [{"POS": "VERB", "LEMMA": {"IN": ["repeat", "forget"]}}]],
+            [-1, [{"POS": "VERB", "LEMMA": {"IN": ["change", "replace", "swap", "switch"]}}]],
+            [-1, [{"LEMMA": {"IN": ["new", "another", "other"]}}]]
+        ],
+    "lifelines": [
+            [1, [{"LEMMA": {"IN": ["lifeline", "help", "aid", "hint"]}}]]
+        ],
+    "doRwa": [
+            [1, [{"POS": "ADJ", "LEMMA": {"IN": ["wrong", "incorrect"]}}, {"LEMMA": {"IN": ["answer"]}}]],
+            [1, [{"POS": "VERB", "LEMMA": {"IN": ["remove", "hide", "reveal", "suggest"]}}]]
+        ],
+    "doSq": [
+            [1, [{"LEMMA": {"IN": ["question"]}}]],
+            [-1, [{"POS": "VERB", "LEMMA": {"IN": ["repeat", "forget"]}}]],
+            [1, [{"POS": "VERB", "LEMMA": {"IN": ["change", "replace", "swap", "switch"]}}]],
+            [1, [{"LEMMA": {"IN": ["new", "another", "other"]}}]]
+        ]
+}

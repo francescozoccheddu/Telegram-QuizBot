@@ -24,11 +24,11 @@ def _doRwa(user, force):
             else:
                 g.setYesNoAction(YesNoAction.DO_RWA)
                 turns = config().rwaCooldownTurns
-                user.send(s('askForRwaConfirm').p(k, answers=k))
-                user.send(s('lifelineCooldownWarning').p(turns, turns=turns))
+                user.send(s('askForRwaConfirm').p(k, answers=nlg.card(k)))
+                user.send(s('lifelineCooldownWarning').p(turns, turns=nlg.card(turns)))
         else:
             turns = g.rwaCooldown
-            user.send(s('rwaCooldownWait').p(turns, turns=turns))
+            user.send(s('rwaCooldownWait').p(turns, turns=nlg.card(turns)))
 
     else:
         remind.notPlaying(user)
@@ -49,14 +49,14 @@ def _doSq(user, force):
                 user.send(s('sqHelpInvoked').s)
                 remind.question(user)
             else:
-                from ..game import sqCooldownTurns
+                from ..game import config
                 g.setYesNoAction(YesNoAction.DO_SQ)
-                turns = sqCooldownTurns()
+                turns = config().sqCooldownTurns
                 user.send(s('askForSqConfirm').s)
-                user.send(s('lifelineCooldownWarning').p(turns, turns=turns))
+                user.send(s('lifelineCooldownWarning').p(turns, turns=nlg.card(turns)))
         else:
             turns = g.sqCooldown
-            user.send(s('sqCooldownWait').p(turns, turns=turns))
+            user.send(s('sqCooldownWait').p(turns, turns=nlg.card(turns)))
     else:
         remind.notPlaying(user)
 

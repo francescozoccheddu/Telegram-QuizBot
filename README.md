@@ -7,9 +7,8 @@ Created by [Francesco Zoccheddu](https://www.github.com/francescozoccheddu).
 
 ```bash
 pip install -v .
+python -m spacy download en_core_web_lg
 ```  
-This may take a while since **all [NLTK](https://www.nltk.org/) data needs to be downloaded**.  
-The `-v` argument prints information about the download progress.
 
 ## Usage
 ```bash
