@@ -24,7 +24,7 @@ def yesNo(user, positive):
         if positive:
             _confirm(user)
         else:
-            user.send(s('cancelConfirm').f())
+            user.send(s('cancelConfirm').s)
     else:
         from .base import didntUnderstandAction
         didntUnderstandAction(user)

@@ -119,42 +119,42 @@ def countryByPopulation(cts):
 @question("geography", ["geography/countries"])
 def mostPopulatedCountry(cts):
     sample = _farSampleBy(cts, 'population', 0.1).sort_values('population', ascending=False)
-    question = utils.string('mostPopulatedCountry').f()
+    question = utils.string('mostPopulatedCountry').s
     return question, tuple(sample.country)
 
 
 @question("geography", ["geography/countries"])
 def leastPopulatedCountry(cts):
     sample = _farSampleBy(cts, 'population', 0.1).sort_values('population', ascending=True)
-    question = utils.string('leastPopulatedCountry').f()
+    question = utils.string('leastPopulatedCountry').s
     return question, tuple(sample.country)
 
 
 @question("geography", ["geography/countries"])
 def largestCountry(cts):
     sample = _farSampleBy(cts, 'area', 0.1).sort_values('area', ascending=False)
-    question = utils.string('largestCountry').f()
+    question = utils.string('largestCountry').s
     return question, tuple(sample.country)
 
 
 @question("geography", ["geography/countries"])
 def smallestCountry(cts):
     sample = _farSampleBy(cts, 'area', 0.1).sort_values('area', ascending=True)
-    question = utils.string('smallestCountry').f()
+    question = utils.string('smallestCountry').s
     return question, tuple(sample.country)
 
 
 @question("geography", ["geography/countries"])
 def richestCountry(cts):
     sample = _farSampleBy(cts, 'gdp', 0.1).sort_values('gdp', ascending=False)
-    question = utils.string('richestCountry').f()
+    question = utils.string('richestCountry').s
     return question, tuple(sample.country)
 
 
 @question("geography", ["geography/countries"])
 def poorestCountry(cts):
     sample = _farSampleBy(cts, 'gdp', 0.1).sort_values('gdp', ascending=True)
-    question = utils.string('poorestCountry').f()
+    question = utils.string('poorestCountry').s
     return question, tuple(sample.country)
 
 

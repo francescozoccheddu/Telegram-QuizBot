@@ -12,39 +12,62 @@ class Holder:
     def datasets(self, value):
         self._datasets = value
 
-    def registerQuestion(self, question):
-        topic = self._topics.get(question.topic, set())
-        topic.add(question)
-        self._topics[question.topic] = topic
+    def registerQuestionFactory(self, factory):
+        topic = self._topics.get(factory.topic, set())
+        topic.add(factory)
+        self._topics[factory.topic] = topic
 
-    def removeQuestion(self, question):
-        topic = self._topics.get(question.topic, None)
+    def removeQuestionFactory(self, factory):
+        topic = self._topics.get(factory.topic, None)
         if topic is not None:
-            topic.pop(question)
+            topic.pop(factory)
 
-    def clearQuestions(self):
+    def clearQuestionFactories(self):
         self._topics.clear()
 
     @property
     def topics(self):
         return tuple(self._topics.keys())
 
-    def questions(self, topics=None, includeNotReady=False):
+    def questionFactories(self, topics=None, includeNotReady=False):
         if isinstance(topics, str):
             topics = [topics]
         if topics is None or len(topics) == 0:
-            return tuple(q for t in self._topics.values() for q in t if includeNotReady or q.isReady)
+            return tuple(qf for t in self._topics.values() for qf in t if includeNotReady or qf.isReady)
         else:
-            questions = set()
+            factories = set()
             for t in topics:
                 topic = self._topics.get(t, [])
-                questions.update(q for q in topic if includeNotReady or q.isReady)
-            return tuple(questions)
+                factories.update(q for q in topic if includeNotReady or q.isReady)
+            return tuple(factories)
 
-    def randomQuestion(self, topics=None, includeNotReady=False):
-        pool = self.questions(topics, includeNotReady)
+    def randomQuestion(self, topics=None):
+        pool = self.questionFactories(topics)
         if len(pool) == 0:
             return None
         else:
             import random
-            return random.choice(pool)
+            question, answers = random.choice(pool)(self.datasets)
+            rightAnswer = answers[0]
+            answers = list(answers)
+            random.shuffle(answers)
+            return question, answers, answers.index(rightAnswer)
+
+
+def registerQuestionFactoriesFromModule(holder, module):
+    from .questions import QuestionFactory
+    for q in module.__dict__.items():
+        if isinstance(q, QuestionFactory):
+            holder.registerQuestion(q)
+
+
+def makeAutoRegisteringDecorator(holder):
+    from .questions import QuestionFactory
+
+    def outerWrapper(topic, datasets=[]):
+        def innerWrapper(producer):
+            q = QuestionFactory(producer, topic, datasets)
+            holder.registerQuestionFactory(q)
+            return q
+        return innerWrapper
+    return outerWrapper

@@ -108,14 +108,7 @@ class Game:
             raise Exception('Not playing')
         if _quiz is None:
             raise Exception('No quiz set')
-        import random
-        question, answers = _quiz.randomQuestion()(_quiz.datasets)
-        rightAnswer = answers[0]
-        answers = list(answers)
-        random.shuffle(answers)
-        self._question = question
-        self._answers = answers
-        self._rightAnswerIndex = answers.index(rightAnswer)
+        self._question, self._answers, self._rightAnswerIndex = _quiz.randomQuestion()
         self._rwaCooldown = max(self._rwaCooldown - 1, 0)
         self._sqCooldown = max(self._sqCooldown - 1, 0)
         self._rwaIndices = tuple()

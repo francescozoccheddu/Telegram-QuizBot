@@ -17,7 +17,7 @@ def albumByYear(als):
     weights = als.year.apply(lambda y: min(abs(y - year), 20) ** 8)
     wrong = als.sample(answersCount() - 1, weights=weights)
     question = utils.string('albumByYear').f(year=year)
-    return question, utils.format(right, wrong, utils.string('albumByArtistAnswer').f())
+    return question, utils.format(right, wrong, utils.string('albumByArtistAnswer').s)
 
 
 @question('music', ['music/albums', 'music/artists'])
@@ -52,4 +52,4 @@ def albumBySong(a):
     song = random.choice(songs)
     wrong = a[a.album != album].sample(answersCount() - 1)
     question = utils.string('albumBySong').f(song=song, year=year)
-    return question, utils.format(right, wrong, utils.string('albumByArtistAnswer').f())
+    return question, utils.format(right, wrong, utils.string('albumByArtistAnswer').s)

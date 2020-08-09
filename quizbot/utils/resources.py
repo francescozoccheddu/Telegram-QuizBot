@@ -51,16 +51,33 @@ def json(filename, link=True):
     return data
 
 
-class Config:
+class LazyResource:
 
     def __init__(self, filename):
         self._filename = filename
+        self._loaded = False
         self._data = None
 
+    def _load(self, filename):
+        raise NotImplementedError()
+
+    @property
+    def data(self):
+        if not self._loaded:
+            self._data = self._load(self._filename)
+        return self._data
+
+
+class Config(LazyResource):
+
+    def __init__(self, filename):
+        super().__init__(filename)
+
+    def _load(self, filename):
+        return json(filename)
+
     def __getitem__(self, key):
-        if self._data is None:
-            self._data = json(self._filename)
-        return self._data[key]
+        return self.data[key]
 
     def __getattr__(self, name):
-        return self[name]
+        return self.data[name]

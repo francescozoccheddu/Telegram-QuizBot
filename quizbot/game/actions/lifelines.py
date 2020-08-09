@@ -19,7 +19,7 @@ def _doRwa(user, force):
             if force:
                 g.doRwa()
                 wrongOrdinal = [nlg.ord(i + 1) for i in g.rwaIndices]
-                ordinals = nlg.join(wrongOrdinal, s('rwaHelpConjunction').f())
+                ordinals = nlg.join(wrongOrdinal, s('rwaHelpConjunction').s)
                 user.send(s('rwaHelpInvoked').p(len(wrongOrdinal), answers=ordinals))
             else:
                 g.setYesNoAction(YesNoAction.DO_RWA)
@@ -46,13 +46,13 @@ def _doSq(user, force):
         if g.canDoSq:
             if force:
                 g.doSq()
-                user.send(s('sqHelpInvoked').f())
+                user.send(s('sqHelpInvoked').s)
                 remind.question(user)
             else:
                 from ..game import sqCooldownTurns
                 g.setYesNoAction(YesNoAction.DO_SQ)
                 turns = sqCooldownTurns()
-                user.send(s('askForSqConfirm').f())
+                user.send(s('askForSqConfirm').s)
                 user.send(s('lifelineCooldownWarning').p(turns, turns=turns))
         else:
             turns = g.sqCooldown

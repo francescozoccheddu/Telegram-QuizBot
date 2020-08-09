@@ -6,7 +6,7 @@ from ..chatgame import YesNoAction
 def didntUnderstandAction(user):
     g = user.data
     g.resetYesNoAction()
-    user.send(s('didntUnderstand').f())
+    user.send(s('didntUnderstand').s)
 
 
 def startNewGame(user):
@@ -14,9 +14,9 @@ def startNewGame(user):
     g.resetYesNoAction()
     if g.isPlaying:
         g.setYesNoAction(YesNoAction.GIVE_UP)
-        user.send(s('cannotStartWhilePlaying').f())
+        user.send(s('cannotStartWhilePlaying').s)
     else:
-        user.send(s('letsStart').f())
+        user.send(s('letsStart').s)
         g.start()
         remind.question(user)
 
@@ -31,13 +31,13 @@ def _answer(user, answerIndex, force):
             return
     if g.isPlaying:
         if answerIndex in g.rwaIndices:
-            user.send(s('rwaKnownWrongAnswer').f())
+            user.send(s('rwaKnownWrongAnswer').s)
         else:
             if force:
                 rightAnswer = g.rightAnswer
                 right = g.answer(answerIndex)
                 if right:
-                    user.send(s('correctAnswer').f())
+                    user.send(s('correctAnswer').s)
                     remind.score(user)
                     remind.question(user)
                 else:
@@ -63,13 +63,13 @@ def _giveUp(user, force):
     if g.isPlaying:
         if force:
             g.giveUp()
-            user.send(s('gaveUp').f())
+            user.send(s('gaveUp').s)
             remind.score(user, True)
             remind.newRecordScore(user)
             remind.startMessage(user)
         else:
             g.setYesNoAction(YesNoAction.GIVE_UP)
-            user.send(s('askForGiveUpConfirm').f())
+            user.send(s('askForGiveUpConfirm').s)
     else:
         remind.notPlaying(user)
 

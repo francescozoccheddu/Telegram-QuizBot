@@ -27,7 +27,7 @@ def movieByYear(mvs):
     weights = mvs.year.apply(lambda y: min(abs(y - year), 20) ** 8)
     wrong = mvs.sample(answersCount() - 1, weights=weights)
     question = utils.string('movieByYear').f(year=year)
-    return question, utils.format(right, wrong, utils.string('movieByDirectorAnswer').f())
+    return question, utils.format(right, wrong, utils.string('movieByDirectorAnswer').s)
 
 
 @question('movies', ['movies/movies'])
@@ -44,7 +44,7 @@ def movieByActor(mvs):
     actor = random.choice(actors)
     wrong = mvs[mvs.actors.apply(lambda a: actor not in a)].sample(answersCount() - 1)
     question = utils.string('movieByActor').f(actor=actor, year=year)
-    return question, utils.format(right, wrong, utils.string('movieByDirectorAnswer').f())
+    return question, utils.format(right, wrong, utils.string('movieByDirectorAnswer').s)
 
 
 @question('movies', ['movies/movies'])

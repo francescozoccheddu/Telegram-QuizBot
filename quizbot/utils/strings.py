@@ -42,7 +42,11 @@ class String:
         self._plural = plural
 
     def f(self, **kwargs):
-        return self._singular.format(**kwargs)
+        return self.s.format(**kwargs)
+
+    @property
+    def s(self):
+        return self._plural if self._singular is None else self._singular
 
     def p(self, isPlural, **kwargs):
         singular = self._singular if self._singular is not None else self._plural

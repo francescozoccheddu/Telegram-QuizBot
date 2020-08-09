@@ -4,5 +4,5 @@ def chatStarted(user):
     from ..chatgame import ChatGame
     from ..actions.remind import startMessage
     user.data = ChatGame()
-    user.send(s('chatStarted').f())
+    user.send(s('chatStarted').s)
     startMessage(user)

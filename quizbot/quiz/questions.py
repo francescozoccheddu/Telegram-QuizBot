@@ -1,5 +1,5 @@
 
-class Question:
+class QuestionFactory:
 
     def __init__(self, producer, topic, datasets=[]):
         if not isinstance(topic, str):
@@ -54,5 +54,5 @@ class Question:
 
 def question(topic, datasets=[]):
     def wrapper(producer):
-        return Question(producer, topic, datasets)
+        return QuestionFactory(producer, topic, datasets)
     return wrapper

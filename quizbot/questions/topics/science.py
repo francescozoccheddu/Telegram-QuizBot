@@ -4,8 +4,8 @@ from .. import utils
 
 
 def _similarity(a, b):
-    from nltk.metrics.distance import jaro_winkler_similarity
-    return jaro_winkler_similarity(a, b)
+    import textdistance
+    return textdistance.prefix.similarity(a, b)
 
 
 def _similarityMap(target, offset=0):

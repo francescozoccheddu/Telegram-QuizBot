@@ -1,7 +1,8 @@
 from ..utils.resources import Config
+from ..quiz.holder import Holder, makeAutoRegisteringDecorator
 
 _config = Config('configs/questions.json')
-_quiz = None
+_quiz = Holder()
 _loaded = False
 
 
@@ -15,18 +16,7 @@ def load(output=True, outputFailures=True):
     _loaded = True
 
 
-def question(topic, datasets=[]):
-    from ..quiz.question import Question
-
-    def wrapper(func):
-        q = Question(func, topic, datasets)
-        global _quiz
-        if _quiz is None:
-            from ..quiz.holder import Holder
-            _quiz = Holder()
-        _quiz.registerQuestion(q)
-        return q
-    return wrapper
+question = makeAutoRegisteringDecorator(_quiz)
 
 
 def quiz():

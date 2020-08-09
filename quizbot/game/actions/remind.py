@@ -14,7 +14,7 @@ def newRecordScore(user):
     g = user.data
     if g.oldRecordScore is not None and g.oldRecordScore > 0:
         if g.oldRecordScore != g.recordScore:
-            user.send(s('newRecord').f())
+            user.send(s('newRecord').s)
         else:
             user.send(s('recordScore').f(score=g.recordScore))
 
@@ -24,7 +24,7 @@ def recordScore(user):
     if g.recordScore is not None and g.recordScore > 0:
         user.send(s('recordScore').f(score=g.recordScore))
     else:
-        user.send(s('noRecord').f())
+        user.send(s('noRecord').s)
 
 
 def question(user):
@@ -48,18 +48,18 @@ def lifelines(user):
                 k = rwaAnswersCount()
                 parts.append(s('rwaDescriptionPart').p(k, ordinal=k))
             if g.canDoSq:
-                parts.append(s('sqDescriptionPart').f())
-            lifelines = nlg.join(parts, s('lifelinesDescriptionConjunction').f())
+                parts.append(s('sqDescriptionPart').s)
+            lifelines = nlg.join(parts, s('lifelinesDescriptionConjunction').s)
             user.send(s('lifelinesDescription').f(lifelines=lifelines))
         else:
-            user.send(s('noLifelinesDescription').f())
+            user.send(s('noLifelinesDescription').s)
     else:
         notPlaying(user)
 
 
 def startMessage(user):
-    user.send(s('tellMeWhenToStart').f())
+    user.send(s('tellMeWhenToStart').s)
 
 
 def notPlaying(user):
-    user.send(s('notPlaying').f())
+    user.send(s('notPlaying').s)
