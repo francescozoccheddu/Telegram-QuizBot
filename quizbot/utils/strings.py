@@ -4,8 +4,8 @@ def fromResource(filename):
     return fromDict(resources.json(filename))
 
 
-_singularPrefix = '_Singular'
-_pluralPrefix = '_Plural'
+_singularKey = 'singular'
+_pluralKey = 'plural'
 
 
 def fromDict(data):
@@ -14,23 +14,10 @@ def fromDict(data):
     if isinstance(data, list):
         return [fromDict(i) for i in data]
     if isinstance(data, dict):
-        newDict = {}
-        for k, v in data.items():
-            if isinstance(v, str):
-                if k.endswith(_singularPrefix):
-                    key = k[:-len(_singularPrefix)]
-                    plural = data.get(key + _pluralPrefix, None)
-                    if isinstance(plural, (str, type(None))):
-                        newDict[key] = String(v, plural)
-                        continue
-                elif k.endswith(_pluralPrefix):
-                    key = k[:-len(_pluralPrefix)]
-                    singular = data.get(key + _singularPrefix, None)
-                    if singular is None:
-                        newDict[key] = String(singular, v)
-                    continue
-            newDict[k] = fromDict(v)
-        return newDict
+        if len(data) > 0 and all(k in [_singularKey, _pluralKey] and isinstance(v, str) for k, v in data.items()):
+            return String(data.get(_singularKey, None), data.get(_pluralKey, None))
+        else:
+            return {k: fromDict(v) for k, v in data.items()}
     else:
         return data
 

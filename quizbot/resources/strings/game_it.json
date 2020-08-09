@@ -9,24 +9,36 @@
     "gaveUp": "Ti sei arreso.",
     "askForGiveUpConfirm": "Sei sicuro di volerti arrendere?",
     "cancelConfirm": "Ok, pensaci con calma.",
-    "rwaDescriptionPart_Singular": "rimuovere una risposta scorretta",
-    "rwaDescriptionPart_Plural": "rimuovere {count} risposte scorrette",
+    "rwaDescriptionPart": {
+        "singular": "rimuovere una risposta scorretta",
+        "plural": "rimuovere {count} risposte scorrette"
+    },
     "sqDescriptionPart": "cambiare domanda",
     "lifelinesDescription": "Puoi {lifelines}, se sei in difficoltà.",
     "lifelinesDescriptionConjunction": "o",
     "noLifelinesDescription": "Non hai altri aiuti a disposizione, ma ricorda che puoi arrenderti per raddoppiare il tuo punteggio.",
-    "rwaHelpInvoked_Singular": "La risposta numero {answers} è scorretta.",
-    "rwaHelpInvoked_Plural": "Le risposta {answers} sono scorrette.",
+    "rwaHelpInvoked": {
+        "singular": "La risposta numero {answers} è scorretta.",
+        "plural": "Le risposta {answers} sono scorrette."
+    },
     "rwaHelpConjunction": "e",
     "askForSqConfirm": "Sei sicuro di voler cambiare domanda?",
-    "askForRwaConfirm_Singular": "Sei sicuro di voler eliminare una risposta scorretta?",
-    "askForRwaConfirm_Plural": "Sei sicuro di voler eliminare {answers} risposte scorrette?",
-    "lifelineCooldownWarning_Singular": "Non potrai usare quest'aiuto per un altro turno.",
-    "lifelineCooldownWarning_Plural": "Non potrai usare quest'aiuto per altri {turns} turni.",
-    "rwaCooldownWait_Singular": "Devi aspettare un altro turno prima di poter rimuovere altre domande scorrette.",
-    "rwaCooldownWait_Plural": "Devi aspettare altri {turns} turni prima di poter rimuovere altre domande scorrette.",
-    "sqCooldownWait_Singular": "Devi aspettare un altro turno prima di poter nuovemente cambiare domanda.",
-    "sqCooldownWait_Plural": "Devi aspettare altri {turns} turni prima di poter nuovemente cambiare domanda.",
+    "askForRwaConfirm": {
+        "singular": "Sei sicuro di voler eliminare una risposta scorretta?",
+        "plural": "Sei sicuro di voler eliminare {answers} risposte scorrette?"
+    },
+    "lifelineCooldownWarning": {
+        "singular": "Non potrai usare quest'aiuto per un altro turno.",
+        "plural": "Non potrai usare quest'aiuto per altri {turns} turni."
+    },
+    "rwaCooldownWait": {
+        "singular": "Devi aspettare un altro turno prima di poter rimuovere altre domande scorrette.",
+        "plural": "Devi aspettare altri {turns} turni prima di poter rimuovere altre domande scorrette."
+    },
+    "sqCooldownWait": {
+        "singular": "Devi aspettare un altro turno prima di poter nuovemente cambiare domanda.",
+        "plural": "Devi aspettare altri {turns} turni prima di poter nuovemente cambiare domanda."
+    },
     "sqHelpInvoked": "Ecco un'altra domanda.",
     "chatStarted": "Ciao!",
     "score": "Il tuo punteggio è {score}.",

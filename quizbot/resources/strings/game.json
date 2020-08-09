@@ -9,24 +9,36 @@
     "gaveUp": "You gave up.",
     "askForGiveUpConfirm": "Are you sure you want to give up?",
     "cancelConfirm": "Ok, think about it.",
-    "rwaDescriptionPart_Singular": "remove a wrong answer",
-    "rwaDescriptionPart_Plural": "remove {count} wrong answers",
+    "rwaDescriptionPart": {
+        "singular": "remove a wrong answer",
+        "plural": "remove {count} wrong answers"
+    },
     "sqDescriptionPart": "switch the question",
     "lifelinesDescription": "You can {lifelines}, if you want.",
     "lifelinesDescriptionConjunction": "or",
     "noLifelinesDescription": "You currently don't have any lifeline, but remember that you can always give up to double your score.",
-    "rwaHelpInvoked_Singular": "The {answers} answer is wrong.",
-    "rwaHelpInvoked_Plural": "The {answers} answers are wrong.",
+    "rwaHelpInvoked": {
+        "singular": "The {answers} answer is wrong.",
+        "plural": "The {answers} answers are wrong."
+    },
     "rwaHelpConjunction": "and",
     "askForSqConfirm": "Are you sure you want to switch the question?",
-    "askForRwaConfirm_Singular": "Are you sure you want to remove a wrong answer?",
-    "askForRwaConfirm_Plural": "Are you sure you want to remove {answers} wrong answers?",
-    "lifelineCooldownWarning_Singular": "You won't be able to use this lifeline again for one turn.",
-    "lifelineCooldownWarning_Plural": "You won't be able to use this lifeline again for the next {turns} turns.",
-    "rwaCooldownWait_Singular": "You have to wait another turn to remove some wrong answers again.",
-    "rwaCooldownWait_Plural": "You have to wait for {turns} more turns to remove some wrong answers again.",
-    "sqCooldownWait_Singular": "You have to wait another turn to switch the question again.",
-    "sqCooldownWait_Plural": "You have to wait for {turns} more turns to switch the question again.",
+    "askForRwaConfirm": {
+        "singular": "Are you sure you want to remove a wrong answer?",
+        "plural": "Are you sure you want to remove {answers} wrong answers?"
+    },
+    "lifelineCooldownWarning": {
+        "singular": "You won't be able to use this lifeline again for one turn.",
+        "plural": "You won't be able to use this lifeline again for the next {turns} turns."
+    },
+    "rwaCooldownWait": {
+        "singular": "You have to wait another turn to remove some wrong answers again.",
+        "plural": "You have to wait for {turns} more turns to remove some wrong answers again."
+    },
+    "sqCooldownWait": {
+        "singular": "You have to wait another turn to switch the question again.",
+        "plural": "You have to wait for {turns} more turns to switch the question again."
+    },
     "sqHelpInvoked": "Here is another question.",
     "chatStarted": "Hi there!",
     "score": "Your score is {score}.",
