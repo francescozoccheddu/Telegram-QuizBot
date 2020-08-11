@@ -129,7 +129,7 @@ def _extractDirectNerAnswerActionIndex(userData, doc):
     if g.isPlaying:
         answers = [(i, set(ent.lemma_ for ent in _nlp(a).ents)) for i, a in enumerate(g.answers)]
         for ent in doc.ents:
-            answers = [(i, ents) for i, ents in answers if ent.lemma_ in ents]
+            answers = [(i, ents) for i, ents in answers if ent.lemma_ in ents] or answers
         if len(answers) == 1:
             return answers[0][0]
     return None
