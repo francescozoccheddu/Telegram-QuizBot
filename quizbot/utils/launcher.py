@@ -28,7 +28,7 @@ def loadExchangeAndDispatcher(loadEx=True, loadDisp=True, output=True, outputFai
         from ..game import game
         from ..questions import questions
         exchange.dispatcher = loadDispatcher(output, outputFailures)
-        game.setQuiz(questions.quiz())
+        game.setQuizzer(questions.quizzer())
     return exchange
 
 

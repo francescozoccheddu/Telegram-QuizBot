@@ -1,8 +1,8 @@
 from ..utils.resources import LazyJson
-from ..quiz.holder import Holder, makeAutoRegisteringDecorator
+from ..quiz.quizzer import Quizzer, makeAutoRegisteringDecorator
 
 _config = LazyJson('configs/questions.json')
-_quiz = Holder()
+_quiz = Quizzer()
 _loaded = False
 
 
@@ -19,7 +19,7 @@ def load(output=True, outputFailures=True):
 question = makeAutoRegisteringDecorator(_quiz)
 
 
-def quiz():
+def quizzer():
     return _quiz
 
 

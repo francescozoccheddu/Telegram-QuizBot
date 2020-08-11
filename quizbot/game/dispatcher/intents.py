@@ -48,15 +48,25 @@ _load()
 def _extractAnswerIndex(userData, doc):
     g = userData
     if g.isPlaying:
+        from ...utils import nlg
         answersCount = len(g.answers)
         candidate = None
         for t in doc:
-            if t.pos == 'NUM':
-                from ...utils import nlg
+            card = nlg.invCard(t.lemma_)
+            isCard = card is not None and 1 <= card <= answersCount
+            ord = nlg.invOrd(t.lemma_)
+            isOrd = ord is not None and 1 <= ord <= answersCount
+            nextT = t.nbor(1).lemma_ if len(doc) > t.i + 1 else None
+            prevT = t.nbor(-1).lemma_ if t.i > 0 else None
+            isNumber = False
+            isNumber |= isOrd and nextT in ['answer', 'choice', 'one']
+            isNumber |= isCard and prevT in ['answer', 'number', 'choice']
+            isNumber |= (isCard or isOrd) and sum(1 for ot in doc if nlg.invNum(ot.lemma_) is not None) == 1
+            if isNumber:
                 number = nlg.invNum(t.text)
                 if number is not None:
                     index = number - 1
-                    if index < answersCount:
+                    if 0 <= index < answersCount:
                         if candidate is None or candidate == index:
                             candidate = index
                         else:
@@ -94,7 +104,7 @@ def _extractStaticMatcherAction(userData, doc):
         weight = 0
         for matchId, _, _ in matches:
             weight += float(_nlp.vocab.strings[matchId])
-        weights[key] = min(max(weight * contextWeights.get(key, 1), _config.minWeightSum), _config.maxWeightSum)
+        weights[key] = min(max(weight * contextWeights.get(key, 1), _config.staticMinWeightSum), _config.staticMaxWeightSum)
     import pandas
     data = pandas.DataFrame(list(weights.items()), columns=['key', 'weight'])
     data = data.sort_values('weight', ascending=False)
@@ -102,7 +112,7 @@ def _extractStaticMatcherAction(userData, doc):
     if len(data.index) > 0:
         first = data.iloc[0].weight
         second = data.iloc[1].weight if len(data.index) > 1 else 0
-        if first > _config.minChosenWeight and (second <= 0 or first / second >= _config.minMargin) and second <= _config.maxOtherWeight:
+        if first > _config.staticMinChosenWeight and first - second >= _config.staticMinChosenMargin and second <= _config.staticMaxOtherWeight:
             bestKey = data.iloc[0].key
     if bestKey == _answerActionKey:
         if answerIndex is None:
@@ -110,9 +120,48 @@ def _extractStaticMatcherAction(userData, doc):
     return bestKey, answerIndex
 
 
-def _extractDirectAnswerActionIndex(userData, doc):
-    # TODO
+def _normalizeText(doc):
+    return ''.join(t.lemma_.lower() for t in doc if not (t.is_space or t.is_punct))
+
+
+def _extractDirectNerAnswerActionIndex(userData, doc):
+    g = userData
+    if g.isPlaying:
+        answers = [(i, set(ent.lemma_ for ent in _nlp(a).ents)) for i, a in enumerate(g.answers)]
+        for ent in doc.ents:
+            answers = [(i, ents) for i, ents in answers if ent.lemma_ in ents]
+        if len(answers) == 1:
+            return answers[0][0]
     return None
+
+
+def _extractDirectTextAnswerActionIndex(userData, doc):
+    g = userData
+    if g.isPlaying:
+        import textdistance
+        answers = [_normalizeText(_nlp(a)) for a in g.answers]
+        message = _normalizeText(doc)
+        sims = [textdistance.levenshtein.normalized_similarity(a, message) for a in answers]
+        firstI, secondI = None, None
+        for i, v in enumerate(sims):
+            if firstI is None or v > sims[firstI]:
+                firstI = i
+            elif secondI is None or v > sims[secondI]:
+                secondI = i
+        first = sims[firstI] if firstI is not None else None
+        second = sims[secondI] if secondI is not None else None
+        if first is not None and first >= _config.directTextMinChosenSim and second is None or (
+                second <= _config.directTextMaxOtherSim and first - second >= _config.directTextMinMargin):
+            return firstI
+    return None
+
+
+def _extractDirectAnswerActionIndex(userData, doc):
+    directTextIndex = _extractDirectTextAnswerActionIndex(userData, doc)
+    if directTextIndex is not None:
+        return directTextIndex
+    else:
+        return _extractDirectNerAnswerActionIndex(userData, doc)
 
 
 def process(user, message):

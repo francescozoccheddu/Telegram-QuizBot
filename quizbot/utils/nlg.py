@@ -3,34 +3,46 @@ from .resources import LazyJson
 _numbers = LazyJson('other/nlgNumbers.json')
 
 
-def _invOrdinals():
-    return dict(zip(_numbers.ordinals.values(), _numbers.ordinals.keys()))
-
-
-def _invCardinals():
-    return dict(zip(_numbers.cardinals.values(), _numbers.cardinals.keys()))
-
-
 def ord(number):
-    if isinstance(number, int) and 1 <= number <= len(_numbers.ordinal):
-        return _numbers.ordinal[number - 1]
+    if isinstance(number, int) and 1 <= number <= len(_numbers.ordinals):
+        return _numbers.ordinals[number - 1]
     else:
         return f'{number}{_numbers.ordinalSuffix}'
 
 
 def card(number):
-    if isinstance(number, int) and 0 <= number < len(_numbers.cardinal):
-        return _numbers.cardinal[number]
+    if isinstance(number, int) and 0 <= number < len(_numbers.cardinals):
+        return _numbers.cardinals[number]
     else:
         return f'{number}'
 
+def invCard(word):
+    word = word.strip().lower()
+    if word.isdigit():
+        return int(word)
+    try:
+        return _numbers.cardinals.index(word)
+    except ValueError:
+        return None
+
+def invOrd(word):
+    word = word.strip().lower()
+    if word.endswith(_numbers.ordinalSuffix):
+        number = word[:-len(_numbers.ordinalSuffix)]
+        if number.isdigit():
+            return int(number)
+    try:
+        return _numbers.ordinals.index(word) + 1
+    except ValueError:
+        return None
+
 
 def invNum(word):
-    word = word.strip().lower()
-    if word.isdigit() or word.endswith(_numbers.ordinalSuffix) and word.replace(_numbers.ordinalSuffix, '').isdigit():
-        return int(word)
+    card = invCard(word)
+    if card is None:
+        return invOrd(word)
     else:
-        return {**_invOrdinals(), **_invCardinals()}.get(word, None)
+        return card
 
 
 def join(items, conjunction='and'):

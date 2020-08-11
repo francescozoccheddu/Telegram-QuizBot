@@ -1,4 +1,4 @@
-class Holder:
+class Quizzer:
 
     def __init__(self):
         self._datasets = {}
@@ -54,20 +54,20 @@ class Holder:
             return question, answers, answers.index(rightAnswer)
 
 
-def registerQuestionFactoriesFromModule(holder, module):
+def registerQuestionFactoriesFromModule(quizzer, module):
     from .questions import QuestionFactory
     for q in module.__dict__.items():
         if isinstance(q, QuestionFactory):
-            holder.registerQuestion(q)
+            quizzer.registerQuestion(q)
 
 
-def makeAutoRegisteringDecorator(holder):
+def makeAutoRegisteringDecorator(quizzer):
     from .questions import QuestionFactory
 
     def outerWrapper(topic, datasets=[]):
         def innerWrapper(producer):
             q = QuestionFactory(producer, topic, datasets)
-            holder.registerQuestionFactory(q)
+            quizzer.registerQuestionFactory(q)
             return q
         return innerWrapper
     return outerWrapper

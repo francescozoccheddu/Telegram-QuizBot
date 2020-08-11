@@ -1,16 +1,16 @@
 from ..utils.resources import LazyJson
 
 _config = LazyJson('configs/game.json')
-_quiz = None
+_quizzer = None
 
 
 def config():
     return _config
 
 
-def setQuiz(quiz):
-    global _quiz
-    _quiz = quiz
+def setQuizzer(quizzer):
+    global _quizzer
+    _quizzer = quizzer
 
 
 class Game:
@@ -106,9 +106,9 @@ class Game:
     def _newQuestion(self):
         if not self._playing:
             raise Exception('Not playing')
-        if _quiz is None:
-            raise Exception('No quiz set')
-        self._question, self._answers, self._rightAnswerIndex = _quiz.randomQuestion()
+        if _quizzer is None:
+            raise Exception('No quizzer set')
+        self._question, self._answers, self._rightAnswerIndex = _quizzer.randomQuestion()
         self._rwaCooldown = max(self._rwaCooldown - 1, 0)
         self._sqCooldown = max(self._sqCooldown - 1, 0)
         self._rwaIndices = tuple()
