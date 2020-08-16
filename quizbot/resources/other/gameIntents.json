@@ -1,8 +1,8 @@
 {
     "newGame": [
-            [2, [{"POS": "VERB", "LEMMA": {"IN": ["start", "begin", "play"]}}]],
-            [1, [{"LEMMA": {"IN": ["new", "another"]}}]],
-            [1, [{"POS": "NOUN", "LEMMA": {"IN": ["game", "match", "quiz", "try", "round"]}}]]
+            [0.5, [{"POS": "VERB", "LEMMA": {"IN": ["start", "begin", "play"]}}]],
+            [0.1, [{"LEMMA": {"IN": ["new", "another"]}}]],
+            [0.3, [{"POS": "NOUN", "LEMMA": {"IN": ["game", "match", "quiz", "try", "round"]}}]]
         ],
     "giveUp": [
             [1, [{"POS": "VERB", "LEMMA": {"IN": ["surrender", "stop", "quit", "exit"]}}]],

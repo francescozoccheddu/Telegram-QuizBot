@@ -3,11 +3,11 @@ from ...utils.resources import LazyJson
 
 _speller = None
 _nlp = None
-_matchers = None
 _actions = None
 _fallbackAction = None
 _answerActionKey = 'answer'
 _config = LazyJson('configs/gameIntents.json')
+_matcherDescriptor = None
 
 
 def _load():
@@ -16,16 +16,10 @@ def _load():
     from ...utils import resources
     from autocorrect import Speller
     from ..actions import base, lifelines, confirm, remind
-    global _nlp, _matchers, _speller, _actions, _fallbackAction
+    global _nlp, _speller, _actions, _fallbackAction, _matcherDescriptor
     _nlp = spacy.load(_config.spacyDataset)
     _speller = Speller()
-    _matchers = {}
-    intents = resources.json('other/gameIntents.json')
-    for key, entries in intents.items():
-        _matchers[key] = matcher = Matcher(_nlp.vocab)
-        for entry in entries:
-            weight, pattern = entry
-            matcher.add(str(weight), [pattern])
+    _matcherDescriptor = resources.json('other/gameIntents.json')
     _actions = {
         'newGame': base.startNewGame,
         'giveUp': base.giveUp,
@@ -96,24 +90,18 @@ def _getActionWeights(userData, validAnswerIndex=True):
 
 
 def _extractStaticMatcherAction(userData, doc):
-    weights = {}
+    from ...utils import spacyMultiMatcher
     answerIndex = _extractAnswerIndex(userData, doc)
-    contextWeights = _getActionWeights(userData, answerIndex is not None)
-    for key, matcher in _matchers.items():
-        matches = matcher(doc)
-        weight = 0
-        for matchId, _, _ in matches:
-            weight += float(_nlp.vocab.strings[matchId])
-        weights[key] = min(max(weight * contextWeights.get(key, 1), _config.staticMinWeightSum), _config.staticMaxWeightSum)
-    import pandas
-    data = pandas.DataFrame(list(weights.items()), columns=['key', 'weight'])
-    data = data.sort_values('weight', ascending=False)
-    bestKey = None
-    if len(data.index) > 0:
-        first = data.iloc[0].weight
-        second = data.iloc[1].weight if len(data.index) > 1 else 0
-        if first > _config.staticMinChosenWeight and first - second >= _config.staticMinChosenMargin and second <= _config.staticMaxOtherWeight:
-            bestKey = data.iloc[0].key
+    options = {
+        'weights': _getActionWeights(userData, answerIndex is not None),
+        'minValue': _config.staticMinValue,
+        'maxValue': _config.staticMaxValue,
+        'minBestValue': _config.staticMinBestValue,
+        'maxOtherValue': _config.staticMaxOtherValue,
+        'minOtherValueMargin': _config.staticMinOtherValueMargin,
+        'falloff': _config.staticFalloff
+    }
+    bestKey = spacyMultiMatcher.best(_matcherDescriptor, doc, options)
     if bestKey == _answerActionKey:
         if answerIndex is None:
             bestKey = None
@@ -139,21 +127,24 @@ def _extractDirectTextAnswerActionIndex(userData, doc):
     g = userData
     if g.isPlaying:
         import textdistance
+        import math
         answers = [_normalizeText(_nlp(a)) for a in g.answers]
         message = _normalizeText(doc)
         sims = [textdistance.levenshtein.normalized_similarity(a, message) for a in answers]
-        firstI, secondI = None, None
+        bestIndex, best, other = None, -math.inf, - math.inf
         for i, v in enumerate(sims):
-            if firstI is None or v > sims[firstI]:
-                firstI = i
-            elif secondI is None or v > sims[secondI]:
-                secondI = i
-        first = sims[firstI] if firstI is not None else None
-        second = sims[secondI] if secondI is not None else None
-        if first is not None and first >= _config.directTextMinChosenSim and second is None or (
-                second <= _config.directTextMaxOtherSim and first - second >= _config.directTextMinMargin):
-            return firstI
-    return None
+            if v > best:
+                other = best
+                best = v
+                bestIndex = i
+            elif v > other:
+                other = v
+        if best < _config.directMinBestValue or other > _config.directMaxOtherValue or best - other < _config.directMinOtherValueMargin:
+            return None
+        else:
+            return bestIndex
+    else:
+        return None
 
 
 def _extractDirectAnswerActionIndex(userData, doc):

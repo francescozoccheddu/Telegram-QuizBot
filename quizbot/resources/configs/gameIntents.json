@@ -1,16 +1,17 @@
 {
-    "staticMinChosenMargin": 0.3,
-    "staticMaxOtherWeight": 1,
-    "staticMinWeightSum": -3,
-    "staticMaxWeightSum": 3,
-    "staticMinChosenWeight": 0.5,
+    "staticFalloff": 0.1,
+    "staticMinValue": -1,
+    "staticMaxValue": 1,
+    "staticMinBestValue": 0.5,
+    "staticMaxOtherValue": 0.6,
+    "staticMinOtherValueMargin": 0.2,
+    "directMinBestValue": 0.7,
+    "directMaxOtherValue": 0.5,
+    "directMinOtherValueMargin": 0.3,
     "autocorrect": true,
     "spacyDataset": "en_core_web_lg",
     "wrongPlayingStateWeight": 0.5,
     "unavailableLifelineWeight": 0.75,
     "invalidAnswerIndexWeight": 0.25,
-    "unexpectedConfirmWeight": 0.25,
-    "directTextMinMargin": 0.3,
-    "directTextMaxOtherSim": 0.5,
-    "directTextMinChosenSim": 0.7
+    "unexpectedConfirmWeight": 0.25
 }
