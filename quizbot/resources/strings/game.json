@@ -4,7 +4,7 @@
     "cannotStartWhilePlaying": "You must finish the current game before starting a new one. Do you want to give up?",
     "rwaKnownWrongAnswer": "I already told you that this is not the correct answers! Try with another one.",
     "correctAnswer": "Correct answer!",
-    "wrongAnswer": "Wrong answer! The right one was \"{answer}\"",
+    "wrongAnswer": "Wrong answer! The right one was \"{answer}\".",
     "negativeAnswerIndex": "The answer index must be positive.",
     "answerIndexOverflow": "There are only {answers} answers.",
     "askForAnswerConfirm": "Are you sure that your answer is \"{answer}\"?",

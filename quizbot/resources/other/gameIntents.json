@@ -52,17 +52,19 @@
         [-0.1,  [{}]]
     ],
     "score": [
-        [-5,    [{"LEMMA": {"IN": ["high", "record", "best"]}}]],
+        [-5,    [{"LEMMA": {"IN": ["high", "record", "good"]}}]],
         [1,     [{"LEMMA": {"IN": ["score"]}}]],
-        [0.1,   [{"LEMMA": {"IN": ["my", "what", "?"]}}]],
+        [0.1,    [{"LEMMA": {"IN": ["current", "last"]}}]],
+        [0.2,   [{"LEMMA": {"IN": ["my", "what", "?"]}}]],
         [0,     [{"IS_STOP": true}]],
         [0,     [{"IS_PUNCT": true}]],
         [-0.1,  [{}]]
     ],
     "record": [
-        [1,     [{"LEMMA": {"IN": ["high", "record", "best"]}}]],
-        [0.5,   [{"LEMMA": {"IN": ["score"]}}]],
-        [0.1,   [{"LEMMA": {"IN": ["my", "what", "?"]}}]],
+        [-1,    [{"LEMMA": {"IN": ["current", "last"]}}]],
+        [1,     [{"LEMMA": {"IN": ["high", "record", "good"]}}]],
+        [0.3,   [{"LEMMA": {"IN": ["score"]}}]],
+        [0.2,   [{"LEMMA": {"IN": ["my", "what", "?"]}}]],
         [0,     [{"IS_STOP": true}]],
         [0,     [{"IS_PUNCT": true}]],
         [-0.1,  [{}]]
