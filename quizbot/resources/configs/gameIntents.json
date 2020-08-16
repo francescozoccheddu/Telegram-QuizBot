@@ -7,7 +7,7 @@
     "staticMinOtherValueMargin": 0.2,
     "directMinBestValue": 0.7,
     "directMaxOtherValue": 0.5,
-    "directMinOtherValueMargin": 0.3,
+    "directMinOtherValueMargin": 0.2,
     "autocorrect": true,
     "spacyDataset": "en_core_web_lg",
     "wrongPlayingStateWeight": 0.5,

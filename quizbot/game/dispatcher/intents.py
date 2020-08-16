@@ -141,10 +141,11 @@ def _extractDirectTextAnswerActionIndex(userData, doc):
                 bestIndex = i
             elif v > other:
                 other = v
+        if best == 1:
+            return bestIndex
         if best < _config.directMinBestValue or other > _config.directMaxOtherValue or best - other < _config.directMinOtherValueMargin:
             return None
-        else:
-            return bestIndex
+        return bestIndex
     else:
         return None
 
