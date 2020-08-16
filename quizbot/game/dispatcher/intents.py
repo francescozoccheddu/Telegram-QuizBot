@@ -31,6 +31,7 @@ def _load():
         'lifelines': remind.lifelines,
         'doRwa': lifelines.doRwa,
         'doSq': lifelines.doSq,
+        'help': remind.help,
         _answerActionKey: base.answer
     }
     _fallbackAction = base.didntUnderstand
@@ -85,6 +86,7 @@ def _getActionWeights(userData, validAnswerIndex=True):
         'lifelines': 1 if g.isPlaying else wp,
         'doRwa': 1 if g.canDoRwa else ul if g.isPlaying else wp,
         'doSq': 1 if g.canDoSq else ul if g.isPlaying else wp,
+        'help': 1,
         _answerActionKey: 1 if validAnswerIndex else ia
     }
 

@@ -1,7 +1,7 @@
 {
     "staticFalloff": 0.1,
-    "staticMinValue": -1,
-    "staticMaxValue": 1,
+    "staticMinValue": -2,
+    "staticMaxValue": 2,
     "staticMinBestValue": 0.5,
     "staticMaxOtherValue": 0.6,
     "staticMinOtherValueMargin": 0.2,

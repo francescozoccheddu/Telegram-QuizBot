@@ -38,7 +38,7 @@ def question(user):
         notPlaying(user)
 
 
-def lifelines(user):
+def lifelines(user, alsoGiveUp=False):
     g = user.data
     if g.isPlaying:
         if g.canDoRwa or g.canDoSq:
@@ -51,6 +51,8 @@ def lifelines(user):
                 parts.append(s('sqDescriptionPart').s)
             lifelines = nlg.join(parts, s('lifelinesDescriptionConjunction').s)
             user.send(s('lifelinesDescription').f(lifelines=lifelines))
+            if alsoGiveUp:
+                user.send(s('lifelinesGiveUpDescription').s)
         else:
             user.send(s('noLifelinesDescription').s)
     else:
@@ -58,8 +60,16 @@ def lifelines(user):
 
 
 def startMessage(user):
-    user.send(s('tellMeWhenToStart').s)
+    help(user)
 
 
 def notPlaying(user):
     user.send(s('notPlaying').s)
+
+
+def help(user):
+    g = user.data
+    if g.isPlaying:
+        lifelines(user, True)
+    else:
+        user.send(s('tellMeWhenToStart').s)

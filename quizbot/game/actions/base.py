@@ -66,8 +66,9 @@ def _giveUp(user, force):
             return
     if g.isPlaying:
         if force:
+            rightAnswer = g.rightAnswer
             g.giveUp()
-            user.send(s('gaveUp').s)
+            user.send(s('gaveUp').f(answer=rightAnswer))
             remind.score(user, True)
             remind.newRecordScore(user)
             remind.startMessage(user)

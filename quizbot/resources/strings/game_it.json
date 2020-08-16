@@ -8,7 +8,7 @@
     "negativeAnswerIndex": "L'indice della risposta deve essere positivo.",
     "answerIndexOverflow": "Ci sono solo {answers} risposte.",
     "askForAnswerConfirm": "\"{answer}\" è la tua risposta definitiva?",
-    "gaveUp": "Ti sei arreso.",
+    "gaveUp": "Ti sei arreso. La risposta corretta era \"{answer}\".",
     "askForGiveUpConfirm": "Sei sicuro di volerti arrendere?",
     "cancelConfirm": "Ok, pensaci con calma.",
     "rwaDescriptionPart": {
@@ -19,6 +19,7 @@
     "lifelinesDescription": "Puoi {lifelines}, se sei in difficoltà.",
     "lifelinesDescriptionConjunction": "o",
     "noLifelinesDescription": "Non hai altri aiuti a disposizione, ma ricorda che puoi arrenderti per raddoppiare il tuo punteggio.",
+    "lifelinesGiveUpDescription": "Ricorda anche che puoi sempre arrenderti per raddoppiare il tuo punteggio.",
     "rwaHelpInvoked": {
         "singular": "La risposta numero {answers} è scorretta.",
         "plural": "Le risposta {answers} sono scorrette."

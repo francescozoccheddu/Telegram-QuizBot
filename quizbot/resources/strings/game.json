@@ -8,7 +8,7 @@
     "negativeAnswerIndex": "The answer index must be positive.",
     "answerIndexOverflow": "There are only {answers} answers.",
     "askForAnswerConfirm": "Are you sure that your answer is \"{answer}\"?",
-    "gaveUp": "You gave up.",
+    "gaveUp": "You gave up. The right answer was \"{answer}\".",
     "askForGiveUpConfirm": "Are you sure you want to give up?",
     "cancelConfirm": "Ok, think about it.",
     "rwaDescriptionPart": {
@@ -19,6 +19,7 @@
     "lifelinesDescription": "You can {lifelines}, if you want.",
     "lifelinesDescriptionConjunction": "or",
     "noLifelinesDescription": "You currently don't have any lifeline, but remember that you can always give up to double your score.",
+    "lifelinesGiveUpDescription": "Also remember that you can always give up to double your score.",
     "rwaHelpInvoked": {
         "singular": "The {answers} answer is wrong.",
         "plural": "The {answers} answers are wrong."
