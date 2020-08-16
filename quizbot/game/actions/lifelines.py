@@ -18,7 +18,7 @@ def _doRwa(user, force):
         if g.canDoRwa:
             if force:
                 g.doRwa()
-                wrongOrdinal = [nlg.ord(i + 1) for i in g.rwaIndices]
+                wrongOrdinal = [nlg.ord(i + 1) for i in sorted(g.rwaIndices)]
                 ordinals = nlg.join(wrongOrdinal, s('rwaHelpConjunction').s)
                 user.send(s('rwaHelpInvoked').p(len(wrongOrdinal), answers=ordinals))
             else:
