@@ -92,7 +92,7 @@ def _getActionWeights(userData, validAnswerIndex=True):
 
 
 def _extractStaticMatcherAction(userData, doc):
-    from ...utils import spacyMultiMatcher
+    from ...utils import intentMatcher
     answerIndex = _extractAnswerIndex(userData, doc)
     options = {
         'weights': _getActionWeights(userData, answerIndex is not None),
@@ -103,59 +103,26 @@ def _extractStaticMatcherAction(userData, doc):
         'minOtherValueMargin': _config.staticMinOtherValueMargin,
         'falloff': _config.staticFalloff
     }
-    bestKey = spacyMultiMatcher.best(_matcherDescriptor, doc, options)
+    bestKey = intentMatcher.best(_matcherDescriptor, doc, options)
     if bestKey == _answerActionKey:
         if answerIndex is None:
             bestKey = None
     return bestKey, answerIndex
 
 
-def _normalizeText(doc):
-    return ''.join(t.lemma_.lower() for t in doc if not (t.is_space or t.is_punct))
-
-
-def _extractDirectNerAnswerActionIndex(userData, doc):
+def _extractDirectAnswerActionIndex(userData, doc):
     g = userData
     if g.isPlaying:
-        answers = [(i, set(ent.lemma_ for ent in _nlp(a).ents)) for i, a in enumerate(g.answers)]
-        for ent in doc.ents:
-            answers = [(i, ents) for i, ents in answers if ent.lemma_ in ents] or answers
-        if len(answers) == 1:
-            return answers[0][0]
-    return None
-
-
-def _extractDirectTextAnswerActionIndex(userData, doc):
-    g = userData
-    if g.isPlaying:
-        import textdistance
-        import math
-        answers = [_normalizeText(_nlp(a)) for a in g.answers]
-        message = _normalizeText(doc)
-        sims = [textdistance.levenshtein.normalized_similarity(a, message) for a in answers]
-        bestIndex, best, other = None, -math.inf, - math.inf
-        for i, v in enumerate(sims):
-            if v > best:
-                other = best
-                best = v
-                bestIndex = i
-            elif v > other:
-                other = v
-        if best == 1:
-            return bestIndex
-        if best < _config.directMinBestValue or other > _config.directMaxOtherValue or best - other < _config.directMinOtherValueMargin:
-            return None
-        return bestIndex
+        from ...utils import answerMatcher
+        options = {
+            'minSimilarity': _config.directMinSimilarity,
+            'maxOtherSimilarity': _config.directMaxOtherSimilarity,
+            'minOtherSimilarityMargin': _config.directminOtherSimilarityMargin
+        }
+        answers = [_nlp(answer) for answer in g.answers]
+        return answerMatcher.bestWithNER(answers, doc, options)
     else:
         return None
-
-
-def _extractDirectAnswerActionIndex(userData, doc):
-    directTextIndex = _extractDirectTextAnswerActionIndex(userData, doc)
-    if directTextIndex is not None:
-        return directTextIndex
-    else:
-        return _extractDirectNerAnswerActionIndex(userData, doc)
 
 
 def process(user, message):
