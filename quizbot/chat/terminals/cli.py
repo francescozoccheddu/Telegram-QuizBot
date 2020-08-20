@@ -1,12 +1,25 @@
 _defaultKey = "_clichat_default_key"
+_cliTag = 'C'
+_userTag = 'Y'
+_botTag = 'B'
 
 
 def defaultKey():
     return _defaultKey
 
 
+def _print(tag, message, newLine=True):
+    tag = f'{tag}: '
+    content = tag
+    for i, line in enumerate(message.splitlines()):
+        if i > 0:
+            content += '\n' + ' ' * len(tag)
+        content += line
+    print(content, end='\n' if newLine else '')
+
+
 def _onBotMessage(ck, uk, message):
-    print(f'B: {message}')
+    _print(_botTag, message)
 
 
 def start(channel, key=_defaultKey):
@@ -16,15 +29,15 @@ def start(channel, key=_defaultKey):
     channel.onBotMessage = _onBotMessage
 
     # Start
-    print(f'C: CLIChat started.')
+    _print(_cliTag, 'Chat started.')
     if not channel[key].isChatting:
-        print(f'C: User added.')
+        _print(_cliTag, 'User added.')
         channel[key].startChat()
-    
+
     # Loop
     try:
         while True:
-            print('Y: ', end='')
+            _print(_userTag, '', False)
             try:
                 message = input()
             except KeyboardInterrupt:
@@ -32,7 +45,7 @@ def start(channel, key=_defaultKey):
                 raise
             channel[key].userMessage(message)
     except KeyboardInterrupt:
-        print(f'C: CLIChat closed by user.')
+        _print(_cliTag, 'Chat closed by user.')
 
     # Restore callback
     channel.onBotMessage = oldHandler
