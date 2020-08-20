@@ -8,7 +8,7 @@ Created by [Francesco Zoccheddu](https://www.github.com/francescozoccheddu).
 
 Run:
 ```bash
-pip install -v .
+pip install .
 python -m spacy download en_core_web_lg
 ```  
 
