@@ -24,11 +24,8 @@
         [-5,    [{"LEMMA": {"IN": ["remove", "hide", "reveal", "not", "wrong", "incorrect"]}}]],
         [-5,    [{"LEMMA": {"IN": ["what", "?"]}}]],
         [0.2,   [{"LEMMA": {"IN": ["answer", "choose", "say", "be"]}}]],
-        [0.7,   [{"LEMMA": {"IN": ["answer", "choice", "number", "one"]}}]],
-        [0.7,   [{"POS": "NUM"}]],
+        [0.7,   [{"LEMMA": {"IN": ["choice", "number", "one"]}}]],
         [0.7,   [{"ENT_TYPE": {"IN": ["CARDINAL", "ORDINAL"]}}]],
-        [0.7,   [{"IS_DIGIT": true}]],
-        [0.7,   [{"LEMMA": {"IN": ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eigth", "ninth"]}}]],
         [0,     [{"IS_STOP": true}]],
         [0,     [{"IS_PUNCT": true}]],
         [-0.1,  [{}]]
@@ -91,7 +88,7 @@
         [1,     [{"LEMMA": {"IN": ["wrong", "incorrect"]}}, {"POS": "ADJ", "OP": "*"}, {"LEMMA": "answer"}]],
         [1,     [{"LEMMA": {"IN": ["remove", "hide", "reveal"]}}]],
         [0,     [{"POS": "NUM"}]],
-        [0,     [{"ENT_TYPE": {"IN": ["CARDINAL", "ORDINAL"]}}]],
+        [0,     [{"ENT_TYPE": "CARDINAL"}]],
         [0,     [{"IS_STOP": true}]],
         [0,     [{"IS_PUNCT": true}]],
         [-0.1,  [{}]]

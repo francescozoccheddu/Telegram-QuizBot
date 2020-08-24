@@ -1,5 +1,5 @@
 {
     "ordinals": ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"],
     "cardinals": ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
-    "ordinalSuffix": "th"
+    "ordinalSuffix": ["th", "st", "nd", "rd"]
 }

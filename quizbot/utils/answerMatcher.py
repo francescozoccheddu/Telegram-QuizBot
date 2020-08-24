@@ -2,8 +2,12 @@ def _normalizeText(doc):
     return ' '.join(t.lemma_.lower() for t in doc if t.is_digit or not (t.is_space or t.is_punct or t.is_stop))
 
 
-def bestBag(answerBags, doc, options):
+def _similarity(a, b):
     import textdistance
+    return textdistance.levenshtein.normalized_similarity(a, b)
+
+
+def bestBag(answerBags, doc, options={}):
     minSim = options.get('minSimilarity', 0.7)
     maxOtherSim = options.get('maxOtherSimilarity', 0.6)
     minOtherSimMargin = options.get('minOtherSimilarityMargin', 0.2)
@@ -14,7 +18,7 @@ def bestBag(answerBags, doc, options):
         for ent in answerBag:
             normEnt = _normalizeText(ent)
             if normEnt and not normEnt.isspace():
-                sim = max(textdistance.levenshtein.normalized_similarity(normEnt, normDoc), sim)
+                sim = max(_similarity(normEnt, normDoc), sim)
         if sim > best:
             other = best
             best = sim
@@ -23,22 +27,28 @@ def bestBag(answerBags, doc, options):
             other = sim
     if best == 1 and other < 1:
         return bestIndex
-    if sim < minSim or other > maxOtherSim or best - other < minOtherSimMargin:
+    if best < minSim or other > maxOtherSim or best - other < minOtherSimMargin:
         return None
     return bestIndex
 
 
-def best(answers, doc, options):
+def best(answers, doc, options={}):
     return bestBag(([answer] for answer in answers), doc, options)
 
 
-def bestWithNER(answers, doc, options):
-    bestIndex = best(answers, doc, options)
-    answerBags = [list(answer.ents) for answer in answers]
-    for ent in doc.ents:
+def bestWithBag(answerBags, bag, options={}):
+    bestIndex = None
+    for ent in bag:
         candidateIndex = bestBag(answerBags, ent, options)
         if bestIndex is None:
             bestIndex = candidateIndex
         elif candidateIndex is not None and candidateIndex != bestIndex:
             return None
     return bestIndex
+
+
+def bestWithNER(answers, doc, options={}):
+    ner = options.get('ner', lambda d: d.ents)
+    answerBags = [ner(answer) for answer in answers]
+    bag = ner(doc)
+    return bestWithBag(answerBags, bag, options)

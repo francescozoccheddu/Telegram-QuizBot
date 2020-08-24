@@ -7,19 +7,25 @@ _actions = None
 _fallbackAction = None
 _answerActionKey = 'answer'
 _config = LazyJson('configs/gameIntents.json')
-_matcherDescriptor = None
+_intentMatcherDescriptor = None
 
 
 def _load():
     import spacy
     from spacy.matcher import Matcher
-    from ...utils import resources
+    from spacy.pipeline import EntityRuler
+    from ...utils import resources, nlg
     from autocorrect import Speller
     from ..actions import base, lifelines, confirm, remind
-    global _nlp, _speller, _actions, _fallbackAction, _matcherDescriptor
+    global _nlp, _speller, _actions, _fallbackAction, _intentMatcherDescriptor
     _nlp = spacy.load(_config.spacyDataset)
+    ruler = EntityRuler(_nlp)
+    ruler.add_patterns(resources.json('other/nerMatcher.json'))
+    ruler.add_patterns(nlg.ordMatcherPatterns())
+    ruler.add_patterns(nlg.cardMatcherPatterns())
+    _nlp.add_pipe(ruler)
     _speller = Speller()
-    _matcherDescriptor = resources.json('other/gameIntents.json')
+    _intentMatcherDescriptor = resources.json('other/intentMatcher.json')
     _actions = {
         'newGame': base.startNewGame,
         'giveUp': base.giveUp,
@@ -103,7 +109,7 @@ def _extractStaticMatcherAction(userData, doc):
         'minOtherValueMargin': _config.staticMinOtherValueMargin,
         'falloff': _config.staticFalloff
     }
-    bestKey = intentMatcher.best(_matcherDescriptor, doc, options)
+    bestKey = intentMatcher.best(_intentMatcherDescriptor, doc, options)
     if bestKey == _answerActionKey:
         if answerIndex is None:
             bestKey = None
@@ -117,7 +123,8 @@ def _extractDirectAnswerActionIndex(userData, doc):
         options = {
             'minSimilarity': _config.directMinSimilarity,
             'maxOtherSimilarity': _config.directMaxOtherSimilarity,
-            'minOtherSimilarityMargin': _config.directminOtherSimilarityMargin
+            'minOtherSimilarityMargin': _config.directminOtherSimilarityMargin,
+            'ner': lambda d: [d, *d.ents]
         }
         answers = [_nlp(answer) for answer in g.answers]
         return answerMatcher.bestWithNER(answers, doc, options)
@@ -127,13 +134,17 @@ def _extractDirectAnswerActionIndex(userData, doc):
 
 def process(user, message):
     if _config.autocorrect:
-        message = _speller(message)
-    doc = _nlp(message)
-    answerIndex = _extractDirectAnswerActionIndex(user.data, doc)
-    if answerIndex is None:
-        actionKey, answerIndex = _extractStaticMatcherAction(user.data, doc)
+        doc = _nlp(_speller(message))
     else:
-        actionKey = _answerActionKey
+        doc = _nlp(message)
+    actionKey, answerIndex = _extractStaticMatcherAction(user.data, doc)
+    if actionKey is None:
+        if _config.autocorrect:
+            answerIndex = _extractDirectAnswerActionIndex(user.data, _nlp(message))
+        if not _config.autocorrect or answerIndex is None:
+            answerIndex = _extractDirectAnswerActionIndex(user.data, doc)
+        if answerIndex is not None:
+            actionKey = _answerActionKey
     args = [answerIndex] if actionKey == _answerActionKey else []
     action = _actions.get(actionKey, _fallbackAction)
     action(user, *args)

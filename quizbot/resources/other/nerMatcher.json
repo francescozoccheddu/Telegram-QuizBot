@@ -1,0 +1,5 @@
+[
+    {"label": "QUOTED", "pattern": [{"lower": "\""}, {"OP": "+"}, {"lower": "\""}]},
+    {"label": "TITLE", "pattern": [{"IS_TITLE": true, "OP": "+"}]},
+    {"label": "NOUN", "pattern": [{"POS": "NOUN", "OP": "+"}]}
+]
